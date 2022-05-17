@@ -4,7 +4,8 @@
   "description": "clothes scraper for stylelist",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "scrape": "rm -rf apify_storage && node main.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/duckduckcody/clothesline/issues"
   },
-  "homepage": "https://github.com/duckduckcody/clothesline#readme"
+  "homepage": "https://github.com/duckduckcody/clothesline#readme",
+  "dependencies": {
+    "apify": "^2.3.2",
+    "playwright": "^1.22.0",
+    "puppeteer": "^14.1.0"
+  }
 }
