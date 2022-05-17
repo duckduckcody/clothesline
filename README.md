@@ -1,4 +1,1 @@
 ## TODO
-
-- typescript
-- es modules
