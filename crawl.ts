@@ -1,37 +1,43 @@
 import Apify from 'apify';
-import { coolShirtzProductConfig } from './configs/cool-shirtz-config';
+import { configs } from './configs';
 import { addRequests } from './utils/add-requests';
 
-Apify.main(async () => {
-  const requestQueue = await Apify.openRequestQueue();
-  await addRequests(requestQueue, coolShirtzProductConfig.categoryUrls);
+const crawlerBaseConfig = {
+  maxRequestRetries: 1,
+  handlePageTimeoutSecs: 30,
+  maxRequestsPerCrawl: 10,
+};
 
-  const crawler = new Apify.CheerioCrawler({
-    requestQueue,
-    maxRequestRetries: 1,
-    handlePageTimeoutSecs: 30,
-    maxRequestsPerCrawl: 10,
-    handlePageFunction: async ({ request, $ }) => {
-      const data = coolShirtzProductConfig.scraper($);
+configs.map((config) => {
+  Apify.main(async () => {
+    const requestQueue = await Apify.openRequestQueue();
+    await addRequests(requestQueue, config.categoryUrls);
 
-      if (data.length !== 0) {
-        await requestQueue.addRequest({
-          url: coolShirtzProductConfig.getNextPageUrl(request.url),
-        });
+    const crawler = new Apify.CheerioCrawler({
+      ...crawlerBaseConfig,
+      requestQueue,
+      handlePageFunction: async ({ request, $ }) => {
+        const data = config.scraper($);
 
-        // stored as JSON files in ./apify_storage/datasets/default
-        await Apify.pushData({
-          name: coolShirtzProductConfig.name,
-          url: request.url,
-          numberOfItems: data.length,
-          data,
-        });
-      }
-    },
-    handleFailedRequestFunction: async ({ request }) => {
-      console.log(`Request ${request.url} failed.`);
-    },
+        if (data.length !== 0) {
+          await requestQueue.addRequest({
+            url: config.getNextPageUrl(request.url),
+          });
+
+          // stored as JSON files in ./apify_storage/datasets/default
+          await Apify.pushData({
+            name: config.name,
+            url: request.url,
+            numberOfItems: data.length,
+            data,
+          });
+        }
+      },
+      handleFailedRequestFunction: async ({ request }) => {
+        console.log(`Request ${request.url} failed.`);
+      },
+    });
+
+    await crawler.run();
   });
-
-  await crawler.run();
 });

@@ -1,21 +1,16 @@
 import { CheerioAPI } from 'cheerio/lib/load';
+import { Config } from '../types/Config';
+import { Product } from '../types/Product';
 
-interface Product {
-  website: string;
-  name: string;
-  link: string;
-  image: string;
-  oldPrice: string;
-  price: string;
-}
-
-export const coolShirtzProductConfig = {
+export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
-  url: 'https://shirtz.cool/collections/t-shirts',
+  baseUrl: 'https://shirtz.cool/collections/t-shirts',
   categoryUrls: [
     'https://shirtz.cool/collections/t-shirts',
     'https://shirtz.cool/collections/button-up-shirts',
+    'https://shirtz.cool/collections/longsleeve',
   ],
+  crawlerType: 'cheerio',
   scraper: ($: CheerioAPI) => {
     const collectedProducts: Product[] = [];
 
@@ -59,7 +54,9 @@ export const coolShirtzProductConfig = {
     return collectedProducts;
   },
   getNextPageUrl: (url: string) => {
-    let pageNumber = Number(url.split('=')?.[1]) ?? 1;
-    return `${coolShirtzProductConfig.url}?page=${pageNumber + 1}`;
+    const splitUrl = url.split('?');
+    let pageNumber = Number(splitUrl[1]?.split('=')?.[1] ?? 1);
+
+    return `${splitUrl[0]}?page=${pageNumber + 1}`;
   },
 };
