@@ -2,10 +2,9 @@
   "name": "clothesline",
   "version": "1.0.0",
   "description": "clothes scraper for stylelist",
-  "main": "",
+  "main": "crawl.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "scrape": "rm -rf apify_storage && node main.js"
+    "scrape": "rm -rf apify_storage && npx ts-node crawl"
   },
   "repository": {
     "type": "git",
