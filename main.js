@@ -49,40 +49,40 @@ const configs = [
   },
 ];
 
-const urls = configs.map((config) => config.url);
+const urls = configs.map((config) => { return({ url: config.url})});
 
 Apify.main(async () => {
-  const requestList = await Apify.openRequestList('start-urls', urls);
+  const requestQueue = await Apify.openRequestQueue();
+  await requestQueue.addRequest(urls[0]);
 
-  const crawler = new Apify.PlaywrightCrawler({
-    requestList,
+  // const requestList = await Apify.openRequestList('start-urls', urls);
+
+  const crawler = new Apify.CheerioCrawler({
+    requestQueue,
     maxRequestRetries: 1,
     handlePageTimeoutSecs: 30,
     maxRequestsPerCrawl: 10,
-    // handlePageFunction: async ({ request, $ }) => {
-    //   const config = configs.find((c) => c.url === request.url);
-    //   const data = config.scraper($);
+    handlePageFunction: async ({ request, $ }) => {
+      const config = configs.find((c) => c.url === request.url);
+      const data = config.scraper($);
 
-    //   log.debug('data', data);
+      log.debug('data', data);
 
-    //   // stored as JSON files in ./apify_storage/datasets/default
-    //   await Apify.pushData({
-    //     name: config.name,
-    //     url: config.url,
-    //     numberOfItems: data.length,
-    //     data,
-    //   });
-    // },
-    handlePageFunction: async ({ page, request }) => {
-      // This function is called to extract data from a single web page
-      // 'page' is an instance of Playwright.Page with page.goto(request.url) already called
-      // 'request' is an instance of Request class with information about the page to load
+      if (data.lenght === 15) {
+        await requestQueue.addRequest({ url: `${request.url}?page=2`});
+      }
+
+
+
+      // stored as JSON files in ./apify_storage/datasets/default
       await Apify.pushData({
-        title: await page.title(),
-        url: request.url,
-        succeeded: true,
+        name: config.name,
+        url: config.url,
+        numberOfItems: data.length,
+        data,
       });
     },
+
 
     // This function is called if the page processing failed more than maxRequestRetries+1 times.
     handleFailedRequestFunction: async ({ request }) => {
