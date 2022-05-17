@@ -6,6 +6,7 @@ Apify.main(async () => {
   const requestQueue = await Apify.openRequestQueue();
   await addRequests(requestQueue, coolShirtzProductConfig.categoryUrls);
 
+  console.log('test');
   const crawler = new Apify.CheerioCrawler({
     requestQueue,
     maxRequestRetries: 1,
