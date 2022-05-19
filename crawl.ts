@@ -5,7 +5,7 @@ import { addRequests } from './utils/add-requests';
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
   handlePageTimeoutSecs: 30,
-  maxRequestsPerCrawl: 100,
+  maxRequestsPerCrawl: 1000,
 };
 
 configs.map((config) => {
