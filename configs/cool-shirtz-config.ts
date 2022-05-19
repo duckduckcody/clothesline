@@ -50,7 +50,6 @@ export const coolShirtzProductConfig: Config = {
         image: image ?? '',
         price: price ?? 0,
         oldPrice: oldPrice ?? 0,
-        website: 'Cool Shirtz',
       });
     });
 
@@ -61,5 +60,8 @@ export const coolShirtzProductConfig: Config = {
     let pageNumber = Number(splitUrl[1]?.split('=')?.[1] ?? 1);
 
     return `${splitUrl[0]}?page=${pageNumber + 1}`;
+  },
+  getGender: (url: string) => {
+    return ['Mens', 'Womens'];
   },
 };

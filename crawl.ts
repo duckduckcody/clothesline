@@ -29,6 +29,7 @@ configs.map((config) => {
           await Apify.pushData({
             name: config.name,
             url: request.url,
+            gender: config.getGender(request.url),
             numberOfItems: data.length,
             data,
           });
