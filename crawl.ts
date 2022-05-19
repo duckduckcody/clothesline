@@ -5,7 +5,7 @@ import { addRequests } from './utils/add-requests';
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
   handlePageTimeoutSecs: 30,
-  maxRequestsPerCrawl: 10,
+  maxRequestsPerCrawl: 100,
 };
 
 configs.map((config) => {
@@ -17,6 +17,7 @@ configs.map((config) => {
       ...crawlerBaseConfig,
       requestQueue,
       handlePageFunction: async ({ request, $ }) => {
+        console.log(`scraping ${request.url}...`);
         const data = config.scraper($);
 
         if (data.length !== 0) {
@@ -31,6 +32,10 @@ configs.map((config) => {
             numberOfItems: data.length,
             data,
           });
+
+          console.log(`finished scraping ${request.url}...`);
+        } else {
+          console.log(`category ${request.url} finished...`);
         }
       },
       handleFailedRequestFunction: async ({ request }) => {
