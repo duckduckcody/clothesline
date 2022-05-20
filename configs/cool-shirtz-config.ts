@@ -1,6 +1,7 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
+import { absoluteUrl } from '../utils/absoluteUrl';
 import { stringToPrice } from '../utils/stringToPrice';
 
 export const coolShirtzProductConfig: Config = {
@@ -35,11 +36,13 @@ export const coolShirtzProductConfig: Config = {
 
       const name = $(linkElement.find('h3')[0])?.text();
 
-      const image = $(product.find('.product-grid-view-item')[0])
-        .attr('data-bgset')
-        ?.split(',')
-        .pop()
-        ?.split(' ')[0];
+      const image = absoluteUrl(
+        $(product.find('.product-grid-view-item')[0])
+          .attr('data-bgset')
+          ?.split(',')
+          .pop()
+          ?.split(' ')[0]
+      );
 
       const moneyElements = product.find('.money');
       const oldPrice = stringToPrice($(moneyElements[1]).text());

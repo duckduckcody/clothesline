@@ -1,6 +1,7 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
+import { absoluteUrl } from '../utils/absoluteUrl';
 import { stringToPrice } from '../utils/stringToPrice';
 
 export const universalConfig: Config = {
@@ -41,11 +42,10 @@ export const universalConfig: Config = {
       const product = $(element);
 
       const anchor = product.find('a.product-item-info');
-
       const link = anchor.attr('href');
       const name = anchor.text().trim();
 
-      const image = $(product.find('img')[0]).attr('src');
+      const image = absoluteUrl($(product.find('img')[0]).attr('src'));
 
       const priceContainer = $(product.find('.price-box')[0]);
       const price = stringToPrice(
