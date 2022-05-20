@@ -12,4 +12,8 @@ describe('stringToPrice', () => {
   test('removes extra content', () => {
     expect(stringToPrice('   \n    \n    $55.55        \n ')).toBe(55.55);
   });
+
+  test('returns undefined on no price', () => {
+    expect(stringToPrice('   \n    \n    abc        \n ')).toBe(undefined);
+  });
 });

@@ -1,6 +1,6 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
-import { Product } from '../types/Product';
+import { Product, productSchema } from '../types/Product';
 import { stringToPrice } from '../utils/stringToPrice';
 
 export const universalConfig: Config = {
@@ -39,11 +39,11 @@ export const universalConfig: Config = {
       const product = $(element);
 
       const imageContainer = product.find('.product-item-image');
-      const link = imageContainer.attr('href') || '';
+      const link = imageContainer.attr('href');
 
       const imageElement = $($(imageContainer).find('img')[0]);
-      const name = imageElement.attr('alt') ?? '';
-      const image = imageElement.attr('src') ?? '';
+      const name = imageElement.attr('alt');
+      const image = imageElement.attr('src');
 
       const priceContainer = $(product.find('.price-box')[0]);
       const price = stringToPrice(
@@ -55,13 +55,19 @@ export const universalConfig: Config = {
           .replace('Regular Price', '')
       );
 
-      collectedProducts.push({
-        name,
+      const parseRes = productSchema.safeParse({
         link,
+        name,
         image,
-        price: price ?? 0,
-        oldPrice: oldPrice ?? 0,
+        price,
+        oldPrice,
       });
+
+      if (parseRes.success) {
+        collectedProducts.push(parseRes.data);
+      } else {
+        console.log('bad product found');
+      }
     });
 
     return collectedProducts;

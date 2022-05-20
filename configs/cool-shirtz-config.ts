@@ -1,6 +1,6 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
-import { Product } from '../types/Product';
+import { Product, productSchema } from '../types/Product';
 import { stringToPrice } from '../utils/stringToPrice';
 
 export const coolShirtzProductConfig: Config = {
@@ -44,13 +44,19 @@ export const coolShirtzProductConfig: Config = {
       const oldPrice = stringToPrice($(moneyElements[1]).text());
       const price = stringToPrice($(moneyElements[0]).text());
 
-      collectedProducts.push({
+      const parseRes = productSchema.safeParse({
         link,
         name,
-        image: image ?? '',
-        price: price ?? 0,
-        oldPrice: oldPrice ?? 0,
+        image,
+        price,
+        oldPrice,
       });
+
+      if (parseRes.success) {
+        collectedProducts.push(parseRes.data);
+      } else {
+        console.log('bad product found');
+      }
     });
 
     return collectedProducts;
