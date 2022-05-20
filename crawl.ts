@@ -6,6 +6,8 @@ const crawlerBaseConfig = {
   maxRequestRetries: 1,
   handlePageTimeoutSecs: 30,
   maxRequestsPerCrawl: 1000,
+  minConcurrency: 10,
+  maxConcurrency: 500,
 };
 
 configs.map((config) => {
@@ -17,15 +19,9 @@ configs.map((config) => {
       ...crawlerBaseConfig,
       requestQueue,
       handlePageFunction: async ({ request, $ }) => {
-        console.log(`scraping ${request.url}...`);
-        const data = config.scraper($);
+        const data = config.scraper($, request.url);
 
-        if (data.length !== 0) {
-          await requestQueue.addRequest({
-            url: config.getNextPageUrl(request.url),
-          });
-
-          // stored as JSON files in ./apify_storage/datasets/default
+        if (data.length) {
           await Apify.pushData({
             name: config.name,
             url: request.url,
@@ -33,7 +29,17 @@ configs.map((config) => {
             numberOfItems: data.length,
             data,
           });
+        } else if (data.length === 0 && request.retryCount === 0) {
+          throw new Error(`No data found on ${request.url}, retrying...`);
+        }
 
+        if (
+          data.length >=
+          config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
+        ) {
+          await requestQueue.addRequest({
+            url: config.getNextPageUrl(request.url),
+          });
           console.log(`finished scraping ${request.url}...`);
         } else {
           console.log(`category ${request.url} finished...`);

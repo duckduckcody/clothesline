@@ -6,6 +6,8 @@ import { stringToPrice } from '../utils/stringToPrice';
 export const universalConfig: Config = {
   name: 'Universal',
   baseUrl: 'https://www.universalstore.com',
+  maximumProductsOnPage: 60,
+  fuckyTolerance: 5,
   categoryUrls: [
     'https://www.universalstore.com/mens/t-shirts.html',
     'https://www.universalstore.com/mens/jeans.html',
@@ -32,18 +34,18 @@ export const universalConfig: Config = {
     'https://www.universalstore.com/womens/swimwear.html',
   ],
   crawlerType: 'cheerio',
-  scraper: ($: CheerioAPI) => {
+  scraper: ($: CheerioAPI, url) => {
     const collectedProducts: Product[] = [];
 
     $('.product-item').each((i, element) => {
       const product = $(element);
 
-      const imageContainer = product.find('.product-item-image');
-      const link = imageContainer.attr('href');
+      const anchor = product.find('a.product-item-info');
 
-      const imageElement = $($(imageContainer).find('img')[0]);
-      const name = imageElement.attr('alt');
-      const image = imageElement.attr('src');
+      const link = anchor.attr('href');
+      const name = anchor.text().trim();
+
+      const image = $(product.find('img')[0]).attr('src');
 
       const priceContainer = $(product.find('.price-box')[0]);
       const price = stringToPrice(
@@ -66,7 +68,7 @@ export const universalConfig: Config = {
       if (parseRes.success) {
         collectedProducts.push(parseRes.data);
       } else {
-        console.log('bad product found');
+        console.log('bad product...');
       }
     });
 

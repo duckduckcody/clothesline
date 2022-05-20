@@ -6,6 +6,7 @@ import { stringToPrice } from '../utils/stringToPrice';
 export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
+  maximumProductsOnPage: 15,
   categoryUrls: [
     'https://shirtz.cool/collections/t-shirts',
     'https://shirtz.cool/collections/button-up-shirts',
@@ -54,8 +55,6 @@ export const coolShirtzProductConfig: Config = {
 
       if (parseRes.success) {
         collectedProducts.push(parseRes.data);
-      } else {
-        console.log('bad product found');
       }
     });
 
