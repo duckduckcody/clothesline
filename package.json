@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/duckduckcody/clothesline#readme",
   "dependencies": {
+    "algoliasearch": "^4.13.1",
     "apify": "^2.3.2",
     "playwright": "^1.22.0",
     "zod": "^3.16.0"

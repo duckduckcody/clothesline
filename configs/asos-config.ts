@@ -7,9 +7,9 @@ import { urlToJson } from '../utils/urlToJson';
 export const asosProductConfig: Config = {
   name: 'Asos',
   baseUrl: 'https://www.asos.com/au',
-  maximumProductsOnPage: 15,
+  maximumProductsOnPage: 72,
   categoryUrls: [
-    'https://www.asos.com/api/product/search/v2/categories/3602?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU',
+    `https://www.asos.com/api/product/search/v2/categories/3602?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU`,
   ],
   scrape: async (url: string) => {
     const json = await urlToJson(url);
@@ -47,7 +47,14 @@ export const asosProductConfig: Config = {
     const params = new URLSearchParams(splitUrl[1]);
 
     const offset = params.get('offset');
-    params.set('offset', `${offset ? Number(offset) + 72 : 72}`);
+    params.set(
+      'offset',
+      `${
+        offset
+          ? Number(offset) + asosProductConfig.maximumProductsOnPage
+          : asosProductConfig.maximumProductsOnPage
+      }`
+    );
 
     return `${splitUrl[0]}?${params.toString()}`;
   },
