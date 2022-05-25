@@ -4,7 +4,6 @@ import { addRequests } from './utils/add-requests';
 
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
-  handlePageTimeoutSecs: 30,
   maxRequestsPerCrawl: 1000,
   minConcurrency: 10,
   maxConcurrency: 500,
@@ -15,13 +14,13 @@ configs.map((config) => {
     const requestQueue = await Apify.openRequestQueue();
     await addRequests(requestQueue, config.categoryUrls);
 
-    const crawler = new Apify.CheerioCrawler({
+    const crawler = new Apify.BasicCrawler({
       ...crawlerBaseConfig,
       requestQueue,
-      handlePageFunction: async ({ request, $ }) => {
-        const data = config.scraper($, request.url);
+      handleRequestFunction: async ({ request }) => {
+        const data = await config.scrape(request.url);
 
-        if (data.length) {
+        if (data && data.length) {
           await Apify.pushData({
             name: config.name,
             url: request.url,
@@ -29,7 +28,7 @@ configs.map((config) => {
             numberOfItems: data.length,
             data,
           });
-        } else if (data.length === 0 && request.retryCount === 0) {
+        } else if (!data || (data.length === 0 && request.retryCount === 0)) {
           throw new Error(`No data found on ${request.url}, retrying...`);
         }
 
@@ -49,7 +48,6 @@ configs.map((config) => {
         console.log(`Request ${request.url} failed.`);
       },
     });
-
     await crawler.run();
   });
 });

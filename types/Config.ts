@@ -1,4 +1,3 @@
-import { CheerioAPI } from 'cheerio/lib/load';
 import { Gender } from './Gender';
 import { Product } from './Product';
 
@@ -8,8 +7,7 @@ export interface Config {
   maximumProductsOnPage: number;
   fuckyTolerance?: number;
   categoryUrls: string[];
-  crawlerType: 'cheerio' | 'playwright' | 'api';
-  scraper: ($: CheerioAPI, url?: string) => Product[];
+  scrape: (url: string) => Promise<Product[] | undefined>;
   getNextPageUrl: (url: string) => string;
   getGender: (url: string) => Gender[];
 }

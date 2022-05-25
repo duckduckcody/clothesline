@@ -1,8 +1,8 @@
-import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { stringToPrice } from '../utils/stringToPrice';
+import { urlToCheerio } from '../utils/urlToCheerio';
 
 export const universalConfig: Config = {
   name: 'Universal',
@@ -34,8 +34,8 @@ export const universalConfig: Config = {
     'https://www.universalstore.com/womens/underwear.html',
     'https://www.universalstore.com/womens/swimwear.html',
   ],
-  crawlerType: 'cheerio',
-  scraper: ($: CheerioAPI, url) => {
+  scrape: async (url: string) => {
+    const $ = await urlToCheerio(url);
     const collectedProducts: Product[] = [];
 
     $('.product-item').each((i, element) => {

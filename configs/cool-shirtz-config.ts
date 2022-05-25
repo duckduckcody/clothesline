@@ -1,8 +1,8 @@
-import { CheerioAPI } from 'cheerio/lib/load';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { stringToPrice } from '../utils/stringToPrice';
+import { urlToCheerio } from '../utils/urlToCheerio';
 
 export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
@@ -17,8 +17,8 @@ export const coolShirtzProductConfig: Config = {
     'https://shirtz.cool/collections/jackets',
     'https://shirtz.cool/collections/pants',
   ],
-  crawlerType: 'cheerio',
-  scraper: ($: CheerioAPI) => {
+  scrape: async (url: string) => {
+    const $ = await urlToCheerio(url);
     const collectedProducts: Product[] = [];
 
     $('.prod-container').each((i, element) => {
