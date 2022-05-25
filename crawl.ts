@@ -32,6 +32,7 @@ configs.map((config) => {
             name: config.name,
             url: request.url,
             gender: config.getGender(request.url),
+            // TODO: add brand, category
             numberOfItems: data.length,
             data,
           });
