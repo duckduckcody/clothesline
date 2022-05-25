@@ -1,5 +1,6 @@
 import Apify from 'apify';
 import { configs } from './configs';
+import { Product } from './types/Product';
 import { addRequests } from './utils/add-requests';
 
 const crawlerBaseConfig = {
@@ -18,7 +19,13 @@ configs.map((config) => {
       ...crawlerBaseConfig,
       requestQueue,
       handleRequestFunction: async ({ request }) => {
-        const data = await config.scrape(request.url);
+        let data: Product[] | undefined = [];
+
+        try {
+          data = await config.scrape(request.url);
+        } catch (e) {
+          console.log('FRESH NEW ERROR', e);
+        }
 
         if (data && data.length) {
           await Apify.pushData({

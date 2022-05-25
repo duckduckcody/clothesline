@@ -1,6 +1,8 @@
 import algoliasearch from 'algoliasearch';
 import { Config } from '../types/Config';
-import { Product } from '../types/Product';
+import { CultureKingsAlgoliaHits } from '../types/CultureKingsAlgoliaHits';
+import { Product, productSchema } from '../types/Product';
+import { logBadProduct, logBadResponse } from '../utils/logging';
 
 const ALGOLIA_APP_ID = '22MG8HZKHO';
 const ALGOLIA_API_KEY = '120a2dd1a67e962183768696b750a52c';
@@ -32,64 +34,68 @@ export const CULTURE_KINGS_ALGOLIA_HEADERS = {
 
 export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
-  baseUrl: 'https://www.culturekings.com.au/',
+  baseUrl: CULTURE_KINGS_URL,
   maximumProductsOnPage: 72,
-  categoryUrls: [''],
+  categoryUrls: [
+    'https://mens-tops',
+    'https://mens-bottoms',
+    'https://womens-tops',
+    'https://womens-bottoms',
+  ],
   scrape: async (url: string) => {
     const collectedProducts: Product[] = [];
+    const splitUrl = url.split('?');
+    const params = new URLSearchParams(splitUrl[1]);
+    const key = splitUrl[0].split('https://')[1];
 
     await index
-      .search('', {
+      .search<CultureKingsAlgoliaHits>('', {
         hitsPerPage: 72,
-        page: 1,
-        ruleContexts: [`collection-${url}`],
-        filters: `${CULTURE_KINGS_ALGOLIA_LIST_FILTERS}${url}`,
+        page: params.get('page') ? Number(params.get('page')) : 1,
+        ruleContexts: [`collection-${key}`],
+        filters: `${CULTURE_KINGS_ALGOLIA_LIST_FILTERS}${key}`,
         headers: CULTURE_KINGS_ALGOLIA_HEADERS,
       })
       .then((res) => {
-        //res to Product[]
+        res.hits.forEach((product) => {
+          const productParse = productSchema.safeParse({
+            name: product.title,
+            oldPrice:
+              product.compareAtPrice > 0 ? product.compareAtPrice : undefined,
+            price: product.price,
+            link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
+            image: product.image,
+          });
+
+          if (productParse.success) {
+            collectedProducts.push(productParse.data);
+          } else {
+            logBadProduct(productParse);
+          }
+        });
       })
       .catch((e) => {
-        console.error('Error scraping Culture kings', e);
+        logBadResponse(e);
       });
 
     return collectedProducts;
-
-    // if (parseRes.success) {
-    //   const collectedProducts: Product[] = [];
-
-    //   parseRes.data.products.forEach((product) => {
-    //     const productParse = productSchema.safeParse({
-    //       name: product.name,
-    //       link: `${asosProductConfig.baseUrl}${product.url}`,
-    //       image: product.imageUrl,
-    //       oldPrice: product.price.previous.value,
-    //       price: product.price.current.value,
-    //     });
-
-    //     if (productParse.success) {
-    //       collectedProducts.push(productParse.data);
-    //     } else {
-    //       console.log('bad product...');
-    //     }
-    //   });
-
-    //   return collectedProducts;
-    // } else {
-    //   throw new Error(`bad api response for ${url}`);
-    // }
   },
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);
 
-    const offset = params.get('offset');
-    params.set('offset', `${offset ? Number(offset) + 72 : 72}`);
+    const page = params.get('page');
+    params.set('page', `${page ? Number(page) + 1 : 2}`);
 
     return `${splitUrl[0]}?${params.toString()}`;
   },
-  // TODO: correctly set gender
   getGender: (url: string) => {
-    return ['Mens', 'Womens'];
+    if (url.includes('womens')) {
+      return ['Womens'];
+    } else if (url.includes('mens')) {
+      return ['Mens'];
+    } else {
+      return ['Mens', 'Womens'];
+    }
   },
 };

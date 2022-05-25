@@ -1,6 +1,7 @@
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
+import { logBadProduct } from '../utils/logging';
 import { stringToPrice } from '../utils/stringToPrice';
 import { urlToCheerio } from '../utils/urlToCheerio';
 
@@ -58,6 +59,8 @@ export const coolShirtzProductConfig: Config = {
 
       if (parseRes.success) {
         collectedProducts.push(parseRes.data);
+      } else {
+        logBadProduct(parseRes);
       }
     });
 

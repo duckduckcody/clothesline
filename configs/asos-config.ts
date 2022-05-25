@@ -2,6 +2,7 @@ import { utils } from 'apify';
 import { asosApiResponseSchema } from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
+import { logBadProduct, logBadResponse } from '../utils/logging';
 import { urlToJson } from '../utils/urlToJson';
 
 export const asosProductConfig: Config = {
@@ -12,15 +13,17 @@ export const asosProductConfig: Config = {
     `https://www.asos.com/api/product/search/v2/categories/3602?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU`,
   ],
   scrape: async (url: string) => {
-    const json = await urlToJson(url);
-    const parseRes = asosApiResponseSchema.safeParse(json);
-
     // asos api seems sophisticated, wait between requests to avoid ip block
     await utils.sleep(5000);
 
-    if (parseRes.success) {
-      const collectedProducts: Product[] = [];
+    const collectedProducts: Product[] = [];
 
+    const json = await urlToJson(url);
+    if (!json) return collectedProducts;
+
+    const parseRes = asosApiResponseSchema.safeParse(json);
+
+    if (parseRes.success) {
       parseRes.data.products.forEach((product) => {
         const productParse = productSchema.safeParse({
           name: product.name,
@@ -33,14 +36,14 @@ export const asosProductConfig: Config = {
         if (productParse.success) {
           collectedProducts.push(productParse.data);
         } else {
-          console.log('bad product...');
+          logBadProduct(productParse);
         }
       });
-
-      return collectedProducts;
     } else {
-      throw new Error(`bad api response for ${url}`);
+      logBadResponse(parseRes);
     }
+
+    return collectedProducts;
   },
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
