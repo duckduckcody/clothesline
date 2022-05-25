@@ -1,3 +1,4 @@
+import { utils } from 'apify';
 import { asosApiResponseSchema } from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
@@ -8,11 +9,14 @@ export const asosProductConfig: Config = {
   baseUrl: 'https://www.asos.com/au',
   maximumProductsOnPage: 15,
   categoryUrls: [
-    'https://www.asos.com/api/product/search/v2/categories/3602?channel=desktop-web&country=AU&currency=AUD&keyStoreDataversion=dup0qtf-35&lang=en-AU&limit=72&offset=72&rowlength=4&store=AU',
+    'https://www.asos.com/api/product/search/v2/categories/3602?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU',
   ],
   scrape: async (url: string) => {
     const json = await urlToJson(url);
     const parseRes = asosApiResponseSchema.safeParse(json);
+
+    // asos api seems sophisticated, wait between requests to avoid ip block
+    await utils.sleep(5000);
 
     if (parseRes.success) {
       const collectedProducts: Product[] = [];
@@ -40,10 +44,14 @@ export const asosProductConfig: Config = {
   },
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
-    let pageNumber = Number(splitUrl[1]?.split('=')?.[1] ?? 1);
+    const params = new URLSearchParams(splitUrl[1]);
 
-    return `${splitUrl[0]}?page=${pageNumber + 1}`;
+    const offset = params.get('offset');
+    params.set('offset', `${offset ? Number(offset) + 72 : 72}`);
+
+    return `${splitUrl[0]}?${params.toString()}`;
   },
+  // TODO: correctly set gender
   getGender: (url: string) => {
     return ['Mens', 'Womens'];
   },
