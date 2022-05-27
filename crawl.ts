@@ -1,4 +1,4 @@
-import Apify from 'apify';
+import Apify, { openDataset } from 'apify';
 import { configs } from './configs';
 import { Product } from './types/Product';
 import { addRequests } from './utils/add-requests';
@@ -19,37 +19,37 @@ configs.map((config) => {
       ...crawlerBaseConfig,
       requestQueue,
       handleRequestFunction: async ({ request }) => {
-        let data: Product[] | undefined = [];
-
-        try {
-          data = await config.scrape(request.url);
-        } catch (e) {
-          console.log('FRESH NEW ERROR', e);
-        }
-
-        if (data && data.length) {
-          await Apify.pushData({
-            name: config.name,
-            url: request.url,
-            gender: config.getGender(request.url),
-            // TODO: add brand, category
-            numberOfItems: data.length,
-            data,
-          });
-        } else if (!data || (data.length === 0 && request.retryCount === 0)) {
-          throw new Error(`No data found on ${request.url}, retrying...`);
-        }
-
-        if (
-          data.length >=
-          config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
-        ) {
-          await requestQueue.addRequest({
-            url: config.getNextPageUrl(request.url),
-          });
-          console.log(`finished scraping ${request.url}...`);
+        if (config.shouldEnqueueLinks(request.url)) {
+          await config.enqueueLinks(request.url, requestQueue);
         } else {
-          console.log(`category ${request.url} finished...`);
+          let data: Product[] | Product | undefined = [];
+
+          data = await config.scrape(request.url);
+
+          if (data) {
+            const dataset = await openDataset(config.name);
+            await dataset.pushData({
+              name: config.name,
+              url: request.url,
+              gender: config.getGender(request.url),
+              // TODO: add brand, category
+              data,
+            });
+          } else if (!data && request.retryCount === 0) {
+            throw new Error(`No data found for ${request.url}, retrying...`);
+          }
+
+          // if array its a list, add next page to queue.
+          if (
+            Array.isArray(data) &&
+            config.getNextPageUrl &&
+            data.length >=
+              config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
+          ) {
+            await requestQueue.addRequest({
+              url: config.getNextPageUrl(request.url),
+            });
+          }
         }
       },
       handleFailedRequestFunction: async ({ request }) => {
