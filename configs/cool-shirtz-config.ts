@@ -1,6 +1,7 @@
 import { utils } from 'apify';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
+import { sizeSchema } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { logBadProduct } from '../utils/logging';
 import { stringToPrice } from '../utils/stringToPrice';
@@ -20,7 +21,7 @@ export const coolShirtzProductConfig: Config = {
   //   'https://shirtz.cool/collections/pants',
   // ],
   categoryUrls: [
-    'https://shirtz.cool/collections/longsleeve/products/ehdjaj-jdbjeui-jnd-oaadf',
+    'https://shirtz.cool/collections/t-shirts/products/the-pockets-tee',
   ],
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueLinks: async (url, requestQueue) => {
@@ -38,10 +39,19 @@ export const coolShirtzProductConfig: Config = {
 
     const product = $('div.product-single');
 
-    // skip if sold out
-    if (product.find(`input#BIS_trigger`).first()) return undefined;
+    // TODO: get sizes to work.
+    const sizes: string[] = [];
+    $('div.swatch-element').each((i, el) => {
+      sizes.push($(el).text().trim());
+    });
+    const sizesParse = sizeSchema.safeParse(sizes);
 
-    const name = $(product.find('.product-single__title').first()).text();
+    // sold out, skip.
+    if (!sizesParse.success) {
+      return undefined;
+    }
+
+    const name = $(product.find('h1.product-single__title').first()).text();
 
     const images: string[] = [];
     product.find('a.product-single__thumbnail').each((i, el) => {
@@ -62,7 +72,6 @@ export const coolShirtzProductConfig: Config = {
     product.find('div#product-description li').replaceWith((i, text) => {
       return ` ${$(text).text()} `;
     });
-
     const details = product
       .find('div#product-description')
       .text()
@@ -77,6 +86,7 @@ export const coolShirtzProductConfig: Config = {
       images,
       price,
       oldPrice,
+      sizes: sizesParse.data,
     });
 
     if (parseRes.success) {
