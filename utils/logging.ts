@@ -3,11 +3,12 @@ import { SafeParseReturnType } from 'zod';
 import { Product } from '../types/Product';
 
 export const logBadProduct = async (
-  res: SafeParseReturnType<Product, Product>
+  res: SafeParseReturnType<Product, Product>,
+  url?: string
 ) => {
   const dataset = await openDataset('BAD_PRODUCT');
   console.log('BAD_PRODUCT logged');
-  dataset.pushData(res);
+  dataset.pushData({ url, res });
 };
 
 export const logBadRequest = async (url: string, error: unknown) => {

@@ -64,13 +64,16 @@ export const cultureKingsConfig: Config = {
               product.compareAtPrice > 0 ? product.compareAtPrice : undefined,
             price: product.price,
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
-            image: product.image,
+            image: product.images,
+            details: product.description,
+            sizes: product.sizes,
+            brand: product.vendor,
           });
 
           if (productParse.success) {
             collectedProducts.push(productParse.data);
           } else {
-            logBadProduct(productParse);
+            logBadProduct(productParse, url);
           }
         });
       })
@@ -80,6 +83,7 @@ export const cultureKingsConfig: Config = {
 
     return collectedProducts;
   },
+  shouldEnqueueLinks: () => false,
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);

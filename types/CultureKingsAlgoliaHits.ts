@@ -9,4 +9,6 @@ export interface CultureKingsAlgoliaHits {
   description: string;
   images: string[];
   styleGroup: string;
+  sizes: string[];
+  vendor: string;
 }

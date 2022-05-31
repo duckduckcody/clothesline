@@ -19,7 +19,7 @@ configs.map((config) => {
       ...crawlerBaseConfig,
       requestQueue,
       handleRequestFunction: async ({ request }) => {
-        if (config.shouldEnqueueLinks(request.url)) {
+        if (config.enqueueLinks && config.shouldEnqueueLinks(request.url)) {
           await config.enqueueLinks(request.url, requestQueue);
         } else {
           let data: Product[] | Product | undefined = [];

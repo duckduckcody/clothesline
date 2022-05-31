@@ -8,7 +8,7 @@ export interface Config {
   maximumProductsOnPage: number;
   fuckyTolerance?: number;
   shouldEnqueueLinks: (url: string) => boolean;
-  enqueueLinks: (
+  enqueueLinks?: (
     url: string,
     requestQueue: RequestQueue
   ) => Promise<Array<QueueOperationInfo>>;
