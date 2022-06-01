@@ -1,4 +1,4 @@
-import Apify, { openDataset } from 'apify';
+import Apify, { openDataset, utils } from 'apify';
 import { configs } from './configs';
 import { Product } from './types/Product';
 import { addRequests } from './utils/add-requests';
@@ -6,8 +6,8 @@ import { addRequests } from './utils/add-requests';
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
   maxRequestsPerCrawl: 1000,
-  minConcurrency: 10,
-  maxConcurrency: 500,
+  minConcurrency: 1,
+  maxConcurrency: 1,
 };
 
 configs.map((config) => {
@@ -21,7 +21,11 @@ configs.map((config) => {
       handleRequestFunction: async ({ request }) => {
         if (config.enqueueLinks && config.shouldEnqueueLinks(request.url)) {
           await config.enqueueLinks(request.url, requestQueue);
+          console.log('queued');
         } else {
+          // randomly delay requests
+          await utils.sleep(1000);
+
           let data: Product[] | Product | undefined = [];
 
           data = await config.scrape(request.url);
@@ -56,7 +60,7 @@ configs.map((config) => {
     });
     await crawler.run();
 
-    const dataSet = await Apify.openDataset('Culture Kings');
+    const dataSet = await Apify.openDataset('Asos');
     const results = await dataSet.reduce(
       (memo, item) => {
         // @ts-ignore

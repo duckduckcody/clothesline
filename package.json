@@ -22,6 +22,7 @@
   "dependencies": {
     "algoliasearch": "^4.13.1",
     "apify": "^2.3.2",
+    "lodash.random": "^3.2.0",
     "lodash.range": "^3.2.0",
     "playwright": "^1.22.0",
     "striptags": "^3.2.0",
@@ -32,6 +33,7 @@
     "@babel/preset-env": "^7.17.12",
     "@babel/preset-typescript": "^7.17.12",
     "@types/jest": "^27.5.1",
+    "@types/lodash.random": "^3.2.7",
     "@types/lodash.range": "^3.2.7",
     "@types/node": "^17.0.34",
     "babel-jest": "^28.1.0",

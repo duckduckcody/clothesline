@@ -1,4 +1,3 @@
-import { utils } from 'apify';
 import {
   asosDetailApiResponseSchema,
   asosSearchApiResponseSchema,
@@ -65,9 +64,6 @@ export const asosProductConfig: Config = {
     `${API_URL}/19632${params}`, // Women's Co-ords
   ],
   scrape: async (url: string) => {
-    // asos api seems sophisticated, wait between requests to avoid ip block
-    await utils.sleep(5000);
-
     const id = url.split('https://')[1];
     const json = await urlToJson(`${API_DETAILS_URL}/${id}${detailsParams}`);
     if (!json) return [];
