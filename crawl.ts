@@ -31,8 +31,6 @@ configs.map((config) => {
             await dataset.pushData({
               name: config.name,
               url: request.url,
-              gender: config.getGender(request.url),
-              // TODO: add brand, category
               data,
             });
           } else if (!data && request.retryCount === 0) {

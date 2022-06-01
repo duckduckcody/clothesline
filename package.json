@@ -24,6 +24,7 @@
     "apify": "^2.3.2",
     "lodash.range": "^3.2.0",
     "playwright": "^1.22.0",
+    "striptags": "^3.2.0",
     "zod": "^3.16.0"
   },
   "devDependencies": {

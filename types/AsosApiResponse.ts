@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const asosApiResponseSchema = z.object({
+export const asosSearchApiResponseSchema = z.object({
   searchTerm: z.string(),
   categoryName: z.string(),
   itemCount: z.number(),
@@ -11,11 +11,9 @@ export const asosApiResponseSchema = z.object({
       price: z.object({
         current: z.object({
           value: z.number(),
-          text: z.string(),
         }),
         previous: z.object({
-          value: z.number(),
-          text: z.string(),
+          value: z.number().nullable(),
         }),
       }),
       brandName: z.string(),
@@ -25,5 +23,23 @@ export const asosApiResponseSchema = z.object({
     })
   ),
 });
+export type AsosSearchApiResponse = z.infer<typeof asosSearchApiResponseSchema>;
 
-export type AsosApiResponse = z.infer<typeof asosApiResponseSchema>;
+export const asosDetailApiResponseSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  description: z.string(),
+  gender: z.string(),
+  brand: z.object({ name: z.string() }),
+  media: z.object({
+    images: z.array(z.object({ url: z.string() })),
+  }),
+  price: z.object({
+    current: z.object({ value: z.number() }),
+    previous: z.object({ value: z.number() }),
+    isMarkedDown: z.boolean(),
+  }),
+  // sizes
+  variants: z.array(z.object({ id: z.number(), brandSize: z.string() })),
+});
+export type AsosDetailApiResponse = z.infer<typeof asosDetailApiResponseSchema>;

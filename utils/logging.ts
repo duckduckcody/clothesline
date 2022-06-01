@@ -22,3 +22,9 @@ export const logBadResponse = async <T extends object>(res: T) => {
   console.log('BAD_RESPONSE logged');
   dataset.pushData(res);
 };
+
+export const logBadEnqueue = async (res: object, extraData?: object) => {
+  const dataset = await openDataset('BAD_ENQUEUE');
+  console.log('BAD_ENQUEUE logged');
+  dataset.pushData({ extraData, res });
+};

@@ -1,4 +1,4 @@
-import { QueueOperationInfo, RequestQueue } from 'apify';
+import { RequestQueue } from 'apify';
 import { Gender } from './Gender';
 import { Product } from './Product';
 
@@ -8,10 +8,8 @@ export interface Config {
   maximumProductsOnPage: number;
   fuckyTolerance?: number;
   shouldEnqueueLinks: (url: string) => boolean;
-  enqueueLinks?: (
-    url: string,
-    requestQueue: RequestQueue
-  ) => Promise<Array<QueueOperationInfo>>;
+  // returns true if successful
+  enqueueLinks?: (url: string, requestQueue: RequestQueue) => Promise<boolean>;
   categoryUrls: string[];
   scrape: (url: string) => Promise<Product[] | Product | undefined>;
   getNextPageUrl?: (url: string) => string;

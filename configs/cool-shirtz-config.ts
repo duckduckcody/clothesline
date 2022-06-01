@@ -1,7 +1,6 @@
 import { utils } from 'apify';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
-import { sizeSchema } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { logBadProduct } from '../utils/logging';
 import { stringToPrice } from '../utils/stringToPrice';
@@ -11,28 +10,26 @@ export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
-  // categoryUrls: [
-  //   'https://shirtz.cool/collections/t-shirts',
-  //   'https://shirtz.cool/collections/button-up-shirts',
-  //   'https://shirtz.cool/collections/longsleeve',
-  //   'https://shirtz.cool/collections/jumpers',
-  //   'https://shirtz.cool/collections/crop-tops',
-  //   'https://shirtz.cool/collections/jackets',
-  //   'https://shirtz.cool/collections/pants',
-  // ],
   categoryUrls: [
-    'https://shirtz.cool/collections/t-shirts/products/the-pockets-tee',
+    'https://shirtz.cool/collections/t-shirts',
+    'https://shirtz.cool/collections/button-up-shirts',
+    'https://shirtz.cool/collections/longsleeve',
+    'https://shirtz.cool/collections/jumpers',
+    'https://shirtz.cool/collections/crop-tops',
+    'https://shirtz.cool/collections/jackets',
+    'https://shirtz.cool/collections/pants',
   ],
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueLinks: async (url, requestQueue) => {
     const $ = await urlToCheerio(url);
-    return await utils.enqueueLinks({
+    await utils.enqueueLinks({
       $,
       requestQueue,
       limit: coolShirtzProductConfig.maximumProductsOnPage,
       selector: 'a.grid-view-item__link',
       baseUrl: coolShirtzProductConfig.baseUrl,
     });
+    return true;
   },
   scrape: async (url) => {
     const $ = await urlToCheerio(url);
@@ -40,16 +37,16 @@ export const coolShirtzProductConfig: Config = {
     const product = $('div.product-single');
 
     // TODO: get sizes to work.
-    const sizes: string[] = [];
-    $('div.swatch-element').each((i, el) => {
-      sizes.push($(el).text().trim());
-    });
-    const sizesParse = sizeSchema.safeParse(sizes);
+    // const sizes: string[] = [];
+    // $('div.swatch-element').each((i, el) => {
+    //   sizes.push($(el).text().trim());
+    // });
+    // const sizesParse = sizeSchema.safeParse(sizes);
 
     // sold out, skip.
-    if (!sizesParse.success) {
-      return undefined;
-    }
+    // if (!sizesParse.success) {
+    //   return undefined;
+    // }
 
     const name = $(product.find('h1.product-single__title').first()).text();
 
@@ -86,7 +83,7 @@ export const coolShirtzProductConfig: Config = {
       images,
       price,
       oldPrice,
-      sizes: sizesParse.data,
+      sizes: [],
     });
 
     if (parseRes.success) {

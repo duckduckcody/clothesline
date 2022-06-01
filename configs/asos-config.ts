@@ -1,13 +1,21 @@
 import { utils } from 'apify';
-import { asosApiResponseSchema } from '../types/AsosApiResponse';
+import {
+  asosDetailApiResponseSchema,
+  asosSearchApiResponseSchema,
+} from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
-import { Product, productSchema } from '../types/Product';
-import { logBadProduct, logBadResponse } from '../utils/logging';
+import { productSchema } from '../types/Product';
+import { addRequests } from '../utils/add-requests';
+import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
+import { stripHtml } from '../utils/strip-html';
 import { urlToJson } from '../utils/urlToJson';
 
 const API_URL = 'https://www.asos.com/api/product/search/v2/categories';
+const API_DETAILS_URL = 'https://api.asos.com/product/catalogue/v3/products';
 const params =
   '?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU';
+const detailsParams =
+  '?store=AU&lang=en-AU&sizeSchema=AU&keyStoreDataversion=dup0qtf-35&currency=AUD';
 
 export const asosProductConfig: Config = {
   name: 'Asos',
@@ -60,36 +68,52 @@ export const asosProductConfig: Config = {
     // asos api seems sophisticated, wait between requests to avoid ip block
     await utils.sleep(5000);
 
-    const collectedProducts: Product[] = [];
+    const id = url.split('https://')[1];
+    const json = await urlToJson(`${API_DETAILS_URL}/${id}${detailsParams}`);
+    if (!json) return [];
 
-    const json = await urlToJson(url);
-    if (!json) return collectedProducts;
-
-    const parseRes = asosApiResponseSchema.safeParse(json);
+    const parseRes = asosDetailApiResponseSchema.safeParse(json);
 
     if (parseRes.success) {
-      parseRes.data.products.forEach((product) => {
-        const productParse = productSchema.safeParse({
-          name: product.name,
-          link: `${asosProductConfig.baseUrl}${product.url}`,
-          image: product.imageUrl,
-          oldPrice: product.price.previous.value,
-          price: product.price.current.value,
-        });
+      const product = parseRes.data;
 
-        if (productParse.success) {
-          collectedProducts.push(productParse.data);
-        } else {
-          logBadProduct(productParse);
-        }
+      const productParse = productSchema.safeParse({
+        name: product.name,
+        brand: product.brand.name,
+        details: stripHtml(product.description),
+        // TODO: resolve the link to product
+        link: '',
+        images: product.media.images.map((i) => i.url),
+        oldPrice: product.price.previous.value,
+        price: product.price.current.value,
+        sizes: product.variants.map((v) => v.brandSize),
       });
+
+      if (productParse.success) {
+        return productParse.data;
+      } else {
+        logBadProduct(productParse);
+      }
     } else {
       logBadResponse(parseRes);
     }
-
-    return collectedProducts;
   },
-  shouldEnqueueLinks: () => false,
+  shouldEnqueueLinks: (url: string) => url.includes(API_URL),
+  enqueueLinks: async (url, requestQueue) => {
+    const json = await urlToJson(url);
+
+    const parseRes = asosSearchApiResponseSchema.safeParse(json);
+    if (parseRes.success) {
+      await addRequests(
+        requestQueue,
+        parseRes.data.products.map((p) => `https://${p.id}`)
+      );
+      return true;
+    } else {
+      logBadEnqueue(parseRes.error, { json });
+      return false;
+    }
+  },
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);
