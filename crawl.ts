@@ -57,5 +57,16 @@ configs.map((config) => {
       },
     });
     await crawler.run();
+
+    const dataSet = await Apify.openDataset('Culture Kings');
+    const results = await dataSet.reduce(
+      (memo, item) => {
+        // @ts-ignore
+        memo.length += item.data.length;
+        return memo;
+      },
+      { length: 0 }
+    );
+    console.log('items scraped: ', results);
   });
 });

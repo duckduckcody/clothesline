@@ -89,6 +89,7 @@ export const asosProductConfig: Config = {
 
     return collectedProducts;
   },
+  shouldEnqueueLinks: () => false,
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);

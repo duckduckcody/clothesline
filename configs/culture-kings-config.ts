@@ -32,6 +32,21 @@ export const CULTURE_KINGS_ALGOLIA_HEADERS = {
   ...HEADERS,
 };
 
+const formatSizes = (sizes: string[]) => {
+  const formattedSizes = [];
+  return sizes.forEach((size) => {
+    if (size === 'XL/2XL') {
+      formattedSizes.push('XL', '2XL');
+    } else if (size === 'S/M') {
+      formattedSizes.push('S', 'M');
+    } else if (size === 'L/XL') {
+      formattedSizes.push('L', 'XL');
+    } else {
+      formattedSizes.push(size);
+    }
+  });
+};
+
 export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
   baseUrl: CULTURE_KINGS_URL,
@@ -64,16 +79,16 @@ export const cultureKingsConfig: Config = {
               product.compareAtPrice > 0 ? product.compareAtPrice : undefined,
             price: product.price,
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
-            image: product.images,
+            images: product.images ? product.images : [product.image],
             details: product.description,
-            sizes: product.sizes,
+            sizes: formatSizes(product.sizes),
             brand: product.vendor,
           });
 
           if (productParse.success) {
             collectedProducts.push(productParse.data);
           } else {
-            logBadProduct(productParse, url);
+            logBadProduct(productParse, { url, product });
           }
         });
       })

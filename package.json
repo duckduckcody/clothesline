@@ -5,6 +5,7 @@
   "main": "crawl.ts",
   "scripts": {
     "scrape": "rm -rf apify_storage && npx ts-node crawl",
+    "s": "rm -rf apify_storage && npx ts-node crawl",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -21,6 +22,7 @@
   "dependencies": {
     "algoliasearch": "^4.13.1",
     "apify": "^2.3.2",
+    "lodash.range": "^3.2.0",
     "playwright": "^1.22.0",
     "zod": "^3.16.0"
   },
@@ -29,6 +31,7 @@
     "@babel/preset-env": "^7.17.12",
     "@babel/preset-typescript": "^7.17.12",
     "@types/jest": "^27.5.1",
+    "@types/lodash.range": "^3.2.7",
     "@types/node": "^17.0.34",
     "babel-jest": "^28.1.0",
     "jest": "^28.1.0",

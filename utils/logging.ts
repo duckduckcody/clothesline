@@ -4,11 +4,11 @@ import { Product } from '../types/Product';
 
 export const logBadProduct = async (
   res: SafeParseReturnType<Product, Product>,
-  url?: string
+  extraData?: object
 ) => {
   const dataset = await openDataset('BAD_PRODUCT');
   console.log('BAD_PRODUCT logged');
-  dataset.pushData({ url, res });
+  dataset.pushData({ extraData, res });
 };
 
 export const logBadRequest = async (url: string, error: unknown) => {
