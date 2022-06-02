@@ -1,11 +1,6 @@
 import { openDataset } from 'apify';
-import { SafeParseReturnType } from 'zod';
-import { Product } from '../types/Product';
 
-export const logBadProduct = async (
-  res: SafeParseReturnType<Product, Product>,
-  extraData?: object
-) => {
+export const logBadProduct = async (res: object, extraData?: object) => {
   const dataset = await openDataset('BAD_PRODUCT');
   console.log('BAD_PRODUCT logged');
   dataset.pushData({ extraData, res });
