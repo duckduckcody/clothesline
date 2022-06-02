@@ -1,4 +1,4 @@
-import Apify, { openDataset, utils } from 'apify';
+import Apify, { openDataset } from 'apify';
 import { configs } from './configs';
 import { Product } from './types/Product';
 import { addRequests } from './utils/add-requests';
@@ -17,15 +17,21 @@ configs.map((config) => {
 
     const crawler = new Apify.BasicCrawler({
       ...crawlerBaseConfig,
+      ...config.crawlerOptions,
       requestQueue,
       handleRequestFunction: async ({ request }) => {
         if (config.enqueueLinks && config.shouldEnqueueLinks(request.url)) {
-          await config.enqueueLinks(request.url, requestQueue);
-          console.log('queued');
-        } else {
-          // randomly delay requests
-          await utils.sleep(1000);
+          const shouldQueueNextPage = await config.enqueueLinks(
+            request.url,
+            requestQueue
+          );
 
+          if (shouldQueueNextPage && config.getNextPageUrl) {
+            await requestQueue.addRequest({
+              url: config.getNextPageUrl(request.url),
+            });
+          }
+        } else {
           let data: Product[] | Product | undefined = [];
 
           data = await config.scrape(request.url);
@@ -37,6 +43,7 @@ configs.map((config) => {
               url: request.url,
               data,
             });
+            console.log('scraped', request.url);
           } else if (!data && request.retryCount === 0) {
             throw new Error(`No data found for ${request.url}, retrying...`);
           }
@@ -58,17 +65,7 @@ configs.map((config) => {
         console.log(`Request ${request.url} failed.`);
       },
     });
-    await crawler.run();
 
-    const dataSet = await Apify.openDataset('Asos');
-    const results = await dataSet.reduce(
-      (memo, item) => {
-        // @ts-ignore
-        memo.length += item.data.length ? item.data.length : 1;
-        return memo;
-      },
-      { length: 0 }
-    );
-    console.log('items scraped: ', results);
+    await crawler.run();
   });
 });

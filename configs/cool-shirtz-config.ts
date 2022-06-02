@@ -2,6 +2,7 @@ import { utils } from 'apify';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
+import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';
 import { stringToPrice } from '../utils/stringToPrice';
 import { urlToCheerio } from '../utils/urlToCheerio';
@@ -10,6 +11,10 @@ export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
+  crawlerOptions: {
+    minConcurrency: 100,
+    maxConcurrency: 100,
+  },
   categoryUrls: [
     'https://shirtz.cool/collections/t-shirts',
     'https://shirtz.cool/collections/button-up-shirts',
@@ -22,15 +27,17 @@ export const coolShirtzProductConfig: Config = {
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueLinks: async (url, requestQueue) => {
     const $ = await urlToCheerio(url);
-    await utils.enqueueLinks({
+    const res = await utils.enqueueLinks({
       $,
       requestQueue,
       limit: coolShirtzProductConfig.maximumProductsOnPage,
       selector: 'a.grid-view-item__link',
       baseUrl: coolShirtzProductConfig.baseUrl,
     });
-    return true;
+
+    return Boolean(res.length);
   },
+  getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
     const $ = await urlToCheerio(url);
 
