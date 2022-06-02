@@ -1,3 +1,4 @@
+import { utils } from 'apify';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
@@ -74,6 +75,20 @@ export const universalConfig: Config = {
     });
 
     return collectedProducts;
+  },
+  shouldEnqueueLinks: (url: string) => {
+    return url.includes('mens') || url.includes('womens');
+  },
+  enqueueLinks: async (url, requestQueue) => {
+    const $ = await urlToCheerio(url);
+    await utils.enqueueLinks({
+      $,
+      requestQueue,
+      limit: universalConfig.maximumProductsOnPage,
+      selector: 'a.grid-view-item__link',
+      baseUrl: universalConfig.baseUrl,
+    });
+    return true;
   },
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');

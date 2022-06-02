@@ -77,8 +77,7 @@ export const asosProductConfig: Config = {
         name: product.name,
         brand: product.brand.name,
         details: stripHtml(product.description),
-        // TODO: resolve the link to product
-        link: '',
+        link: product.localisedData.find((d) => d.locale === 'en-AU')?.pdpUrl,
         images: product.media.images.map((i) => i.url),
         oldPrice: product.price.previous.value,
         price: product.price.current.value,

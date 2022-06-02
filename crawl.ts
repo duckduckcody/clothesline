@@ -64,7 +64,7 @@ configs.map((config) => {
     const results = await dataSet.reduce(
       (memo, item) => {
         // @ts-ignore
-        memo.length += item.data.length;
+        memo.length += item.data.length ? item.data.length : 1;
         return memo;
       },
       { length: 0 }
