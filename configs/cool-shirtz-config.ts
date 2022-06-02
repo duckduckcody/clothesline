@@ -11,10 +11,6 @@ export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
-  crawlerOptions: {
-    minConcurrency: 100,
-    maxConcurrency: 100,
-  },
   categoryUrls: [
     'https://shirtz.cool/collections/t-shirts',
     'https://shirtz.cool/collections/button-up-shirts',

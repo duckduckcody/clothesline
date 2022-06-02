@@ -6,8 +6,8 @@ import { addRequests } from './utils/add-requests';
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
   maxRequestsPerCrawl: 1000,
-  minConcurrency: 1,
-  maxConcurrency: 1,
+  minConcurrency: 50,
+  maxConcurrency: 50,
 };
 
 configs.map((config) => {
@@ -43,7 +43,6 @@ configs.map((config) => {
               url: request.url,
               data,
             });
-            console.log('scraped', request.url);
           } else if (!data && request.retryCount === 0) {
             throw new Error(`No data found for ${request.url}, retrying...`);
           }

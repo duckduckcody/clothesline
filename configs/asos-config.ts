@@ -20,6 +20,10 @@ export const asosProductConfig: Config = {
   name: 'Asos',
   baseUrl: 'https://www.asos.com/au',
   maximumProductsOnPage: 72,
+  crawlerOptions: {
+    minConcurrency: 1,
+    maxConcurrency: 1,
+  },
   categoryUrls: [
     `${API_URL}/5668${params}`, // mens hoodies
     `${API_URL}/3606${params}`, // mens jackets

@@ -8,7 +8,9 @@ export interface Config {
   maximumProductsOnPage: number;
   fuckyTolerance?: number;
   shouldEnqueueLinks: (url: string) => boolean;
-  // returns true if successful
+  /**
+   * returns true if at least one product was enqueued
+   */
   enqueueLinks?: (url: string, requestQueue: RequestQueue) => Promise<boolean>;
   categoryUrls: string[];
   scrape: (url: string) => Promise<Product[] | Product | undefined>;

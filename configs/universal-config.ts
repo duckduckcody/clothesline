@@ -2,6 +2,7 @@ import { utils } from 'apify';
 import { Config } from '../types/Config';
 import { Product, productSchema } from '../types/Product';
 import { absoluteUrl } from '../utils/absoluteUrl';
+import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';
 import { stringToPrice } from '../utils/stringToPrice';
 import { urlToCheerio } from '../utils/urlToCheerio';
@@ -70,7 +71,7 @@ export const universalConfig: Config = {
       if (parseRes.success) {
         collectedProducts.push(parseRes.data);
       } else {
-        logBadProduct(parseRes);
+        logBadProduct(parseRes, { url });
       }
     });
 
@@ -81,21 +82,16 @@ export const universalConfig: Config = {
   },
   enqueueLinks: async (url, requestQueue) => {
     const $ = await urlToCheerio(url);
-    await utils.enqueueLinks({
+    const res = await utils.enqueueLinks({
       $,
       requestQueue,
       limit: universalConfig.maximumProductsOnPage,
-      selector: 'a.grid-view-item__link',
+      selector: 'a.product-item-info',
       baseUrl: universalConfig.baseUrl,
     });
-    return true;
+    return Boolean(res.length);
   },
-  getNextPageUrl: (url: string) => {
-    const splitUrl = url.split('?');
-    let pageNumber = Number(splitUrl[1]?.split('=')?.[1] ?? 1);
-
-    return `${splitUrl[0]}?p=${pageNumber + 1}`;
-  },
+  getNextPageUrl: (url: string) => incrementPageParam(url, 'p'),
   getGender: (url: string) => {
     if (url.includes('womens')) {
       return ['Womens'];
