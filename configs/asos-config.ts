@@ -4,11 +4,11 @@ import {
   Variant,
 } from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
-import { Gender } from '../types/Gender';
 import { productSchema } from '../types/Product';
 import { Size } from '../types/Size';
 import { addRequests } from '../utils/add-requests';
 import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
+import { makeGender } from '../utils/makeGender';
 import { stripHtml } from '../utils/strip-html';
 import { urlToJson } from '../utils/urlToJson';
 
@@ -26,19 +26,6 @@ const makeSizes = (variants: Variant[]): Size[] =>
     price: v.price.current.value,
     oldPrice: v.price.previous.value,
   }));
-
-const makeGender = (gender: string): Gender[] | undefined => {
-  if (gender === 'Women') {
-    return ['Womens'];
-  } else if (gender === 'Men') {
-    return ['Mens'];
-  } else if (gender === 'Unisex') {
-    return ['Mens', 'Womens'];
-  } else {
-    logBadProduct({ message: 'unknown gender response', gender });
-    return undefined;
-  }
-};
 
 export const asosProductConfig: Config = {
   name: 'Asos',

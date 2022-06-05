@@ -4,8 +4,10 @@ import {
   CultureKingsAlgoliaHits,
   Variant,
 } from '../types/CultureKingsAlgoliaHits';
-import { Product, productSchema, Size } from '../types/Product';
+import { Product, productSchema } from '../types/Product';
+import { Size } from '../types/Size';
 import { logBadProduct, logBadResponse } from '../utils/logging';
+import { makeGender } from '../utils/makeGender';
 
 const ALGOLIA_APP_ID = '22MG8HZKHO';
 const ALGOLIA_API_KEY = '120a2dd1a67e962183768696b750a52c';
@@ -35,7 +37,7 @@ export const CULTURE_KINGS_ALGOLIA_HEADERS = {
   ...HEADERS,
 };
 
-const formatSizes = (sizes: Variant[]): Size[] =>
+const makeSizes = (sizes: Variant[]): Size[] =>
   sizes.map((s) => ({
     label: s.title,
     inStock: s.availableForSale && s.inStock,
@@ -74,8 +76,9 @@ export const cultureKingsConfig: Config = {
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
             images: product.images ? product.images : [product.image],
             details: product.description,
-            sizes: formatSizes(product.variants),
+            sizes: makeSizes(product.variants),
             brand: product.vendor,
+            gender: makeGender(product.gender),
           });
 
           if (productParse.success) {
