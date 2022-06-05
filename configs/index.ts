@@ -1,3 +1,3 @@
-import { asosProductConfig } from './asos-config';
+import { coolShirtzProductConfig } from './cool-shirtz-config';
 
-export const configs = [asosProductConfig];
+export const configs = [coolShirtzProductConfig];

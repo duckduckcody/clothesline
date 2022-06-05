@@ -1,6 +1,7 @@
 import { utils } from 'apify';
 import { Config } from '../types/Config';
-import { productSchema } from '../types/Product';
+import { productSchema, sizeSchema } from '../types/Product';
+import { Size } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';
@@ -35,21 +36,11 @@ export const coolShirtzProductConfig: Config = {
   },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
+    // get sizes to work.............
+
     const $ = await urlToCheerio(url);
 
     const product = $('div.product-single');
-
-    // TODO: get sizes to work.
-    // const sizes: string[] = [];
-    // $('div.swatch-element').each((i, el) => {
-    //   sizes.push($(el).text().trim());
-    // });
-    // const sizesParse = sizeSchema.safeParse(sizes);
-
-    // sold out, skip.
-    // if (!sizesParse.success) {
-    //   return undefined;
-    // }
 
     const name = $(product.find('h1.product-single__title').first()).text();
 
@@ -66,6 +57,24 @@ export const coolShirtzProductConfig: Config = {
     ).find('span.money');
     const oldPrice = stringToPrice($(moneyElements[1]).text());
     const price = stringToPrice($(moneyElements[0]).text());
+
+    const sizes: Size[] = [];
+    $(product.find('.swatch-element')).each((i, s) => {
+      const sizeParse = sizeSchema.safeParse({
+        label: $(s).text(),
+        inStock: !$(s).hasClass('soldout'),
+        price: price,
+        oldPrice: oldPrice,
+      });
+
+      if (sizeParse.success) {
+        sizes.push(sizeParse.data);
+      } else {
+        logBadProduct(sizeParse.error, {
+          message: 'error making styles for cools shirtz',
+        });
+      }
+    });
 
     // clean up details
     product.find('div#product-description br').replaceWith(' ');
@@ -84,9 +93,7 @@ export const coolShirtzProductConfig: Config = {
       brand: coolShirtzProductConfig.name,
       details,
       images,
-      price,
-      oldPrice,
-      sizes: [],
+      sizes,
     });
 
     if (parseRes.success) {
