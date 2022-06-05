@@ -1,7 +1,7 @@
 import { utils } from 'apify';
 import { Config } from '../types/Config';
-import { productSchema, sizeSchema } from '../types/Product';
-import { Size } from '../types/Size';
+import { productSchema } from '../types/Product';
+import { Size, sizeSchema } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';

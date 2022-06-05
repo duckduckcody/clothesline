@@ -1,11 +1,5 @@
 import { z } from 'zod';
-
-export const sizeSchema = z.object({
-  label: z.string(),
-  inStock: z.boolean(),
-  price: z.number(),
-  oldPrice: z.number().optional(),
-});
+import { sizeSchema } from './Size';
 
 export const productSchema = z.object({
   name: z.string(),
@@ -18,4 +12,3 @@ export const productSchema = z.object({
 });
 
 export type Product = z.infer<typeof productSchema>;
-export type Size = z.infer<typeof sizeSchema>;

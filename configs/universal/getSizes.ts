@@ -1,6 +1,6 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { z } from 'zod';
-import { Size, sizeSchema } from '../../types/Product';
+import { Size, sizeSchema } from '../../types/Size';
 import { logBadProduct } from '../../utils/logging';
 import { urlToJson } from '../../utils/urlToJson';
 
