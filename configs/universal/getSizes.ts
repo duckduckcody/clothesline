@@ -1,6 +1,6 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { z } from 'zod';
-import { Size } from '../../types/Product';
+import { Size, sizeSchema } from '../../types/Product';
 import { logBadProduct } from '../../utils/logging';
 import { urlToJson } from '../../utils/urlToJson';
 
@@ -40,21 +40,40 @@ export const getPageSkus = ($: CheerioAPI) => {
 
 export const makeSizes = (
   apiSkus: StockQuantityUrlResponse,
-  pageSkus: SKU[]
+  pageSkus: SKU[],
+  price: number | undefined,
+  oldPrice: number | undefined
 ) => {
   const sizes: Size[] = [];
 
   apiSkus.products.map((apiSku) => {
     const label = pageSkus.find((pageSku) => pageSku.sku === apiSku.sku)?.label;
     if (label) {
-      sizes.push({ label, inStock: apiSku.status !== 'out-of-stock' });
+      const sizeParse = sizeSchema.safeParse({
+        label,
+        inStock: apiSku.status !== 'out-of-stock',
+        price,
+        oldPrice,
+      });
+
+      if (sizeParse.success) {
+        sizes.push(sizeParse.data);
+      } else {
+        logBadProduct(sizeParse.error, {
+          message: 'error in universal store makeSizes()',
+        });
+      }
     }
   });
 
   return sizes;
 };
 
-export const getSizes = async ($: CheerioAPI) => {
+export const getSizes = async (
+  $: CheerioAPI,
+  price: number | undefined,
+  oldPrice: number | undefined
+) => {
   const pageSkus = getPageSkus($);
 
   const stockQuantityRes = await urlToJson(makeQuantityUrl(pageSkus));
@@ -62,7 +81,7 @@ export const getSizes = async ($: CheerioAPI) => {
   const stockParse = stockQuantityUrlResponseSchema.safeParse(stockQuantityRes);
 
   if (stockParse.success) {
-    return makeSizes(stockParse.data, pageSkus);
+    return makeSizes(stockParse.data, pageSkus, price, oldPrice);
   } else {
     logBadProduct(stockParse, {
       message: 'error getting universal stock levels',

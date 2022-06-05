@@ -71,9 +71,6 @@ export const cultureKingsConfig: Config = {
         res.hits.forEach((product) => {
           const productParse = productSchema.safeParse({
             name: product.title,
-            oldPrice:
-              product.compareAtPrice > 0 ? product.compareAtPrice : undefined,
-            price: product.price,
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
             images: product.images ? product.images : [product.image],
             details: product.description,

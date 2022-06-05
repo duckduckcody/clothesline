@@ -67,7 +67,7 @@ export const universalConfig: Config = {
         .replaceAll('Regular Price', '')
     );
 
-    const sizes = await getSizes($);
+    const sizes = await getSizes($, price, oldPrice);
 
     const parseRes = productSchema.safeParse({
       name,
@@ -76,8 +76,6 @@ export const universalConfig: Config = {
       details: '',
       images,
       sizes,
-      price,
-      oldPrice,
     });
 
     if (parseRes.success) {

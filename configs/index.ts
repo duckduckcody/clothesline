@@ -1,3 +1,3 @@
-import { cultureKingsConfig } from './culture-kings-config';
+import { asosProductConfig } from './asos-config';
 
-export const configs = [cultureKingsConfig];
+export const configs = [asosProductConfig];

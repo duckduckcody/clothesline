@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const sizeSchema = z.object({
+export const sizeSchema = z.object({
   label: z.string(),
   inStock: z.boolean(),
   price: z.number(),
@@ -14,8 +14,6 @@ export const productSchema = z.object({
   sizing: z.string().optional(),
   link: z.string(),
   images: z.array(z.string()),
-  oldPrice: z.number().optional(),
-  price: z.number(),
   sizes: z.array(sizeSchema),
 });
 

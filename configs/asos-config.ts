@@ -1,9 +1,10 @@
 import {
   asosDetailApiResponseSchema,
   asosSearchApiResponseSchema,
+  Variant,
 } from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
-import { productSchema } from '../types/Product';
+import { productSchema, Size } from '../types/Product';
 import { addRequests } from '../utils/add-requests';
 import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
 import { stripHtml } from '../utils/strip-html';
@@ -15,6 +16,14 @@ const params =
   '?channel=desktop-web&country=AU&currency=AUD&lang=en-AU&limit=72&rowlength=4&store=AU';
 const detailsParams =
   '?store=AU&lang=en-AU&sizeSchema=AU&keyStoreDataversion=dup0qtf-35&currency=AUD';
+
+const makeSizes = (variants: Variant[]): Size[] =>
+  variants.map((v) => ({
+    label: v.brandSize,
+    inStock: v.isInStock && v.isAvailable,
+    price: v.price.current.value,
+    oldPrice: v.price.previous.value,
+  }));
 
 export const asosProductConfig: Config = {
   name: 'Asos',
@@ -83,9 +92,7 @@ export const asosProductConfig: Config = {
         details: stripHtml(product.description),
         link: product.localisedData.find((d) => d.locale === 'en-AU')?.pdpUrl,
         images: product.media.images.map((i) => i.url),
-        oldPrice: product.price.previous.value,
-        price: product.price.current.value,
-        sizes: product.variants.map((v) => v.brandSize),
+        sizes: makeSizes(product.variants),
       });
 
       if (productParse.success) {
