@@ -61,7 +61,6 @@ export const getSizes = async ($: CheerioAPI) => {
 
   const stockParse = stockQuantityUrlResponseSchema.safeParse(stockQuantityRes);
 
-  console.log('stockParse', stockParse);
   if (stockParse.success) {
     return makeSizes(stockParse.data, pageSkus);
   } else {

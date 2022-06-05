@@ -1,7 +1,10 @@
 import algoliasearch from 'algoliasearch';
 import { Config } from '../types/Config';
-import { CultureKingsAlgoliaHits } from '../types/CultureKingsAlgoliaHits';
-import { Product, productSchema } from '../types/Product';
+import {
+  CultureKingsAlgoliaHits,
+  Variant,
+} from '../types/CultureKingsAlgoliaHits';
+import { Product, productSchema, Size } from '../types/Product';
 import { logBadProduct, logBadResponse } from '../utils/logging';
 
 const ALGOLIA_APP_ID = '22MG8HZKHO';
@@ -32,20 +35,13 @@ export const CULTURE_KINGS_ALGOLIA_HEADERS = {
   ...HEADERS,
 };
 
-const formatSizes = (sizes: string[]) => {
-  const formattedSizes = [];
-  return sizes.forEach((size) => {
-    if (size === 'XL/2XL') {
-      formattedSizes.push('XL', '2XL');
-    } else if (size === 'S/M') {
-      formattedSizes.push('S', 'M');
-    } else if (size === 'L/XL') {
-      formattedSizes.push('L', 'XL');
-    } else {
-      formattedSizes.push(size);
-    }
-  });
-};
+const formatSizes = (sizes: Variant[]): Size[] =>
+  sizes.map((s) => ({
+    label: s.title,
+    inStock: s.availableForSale && s.inStock,
+    price: s.price,
+    oldPrice: s.compareAtPrice > 0 ? s.compareAtPrice : undefined,
+  }));
 
 export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
@@ -81,7 +77,7 @@ export const cultureKingsConfig: Config = {
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
             images: product.images ? product.images : [product.image],
             details: product.description,
-            sizes: formatSizes(product.sizes),
+            sizes: formatSizes(product.variants),
             brand: product.vendor,
           });
 

@@ -1,3 +1,11 @@
+export interface Variant {
+  availableForSale: boolean;
+  inStock: boolean;
+  price: number;
+  compareAtPrice: number;
+  title: string;
+}
+
 export interface CultureKingsAlgoliaHits {
   title: string;
   price: number;
@@ -11,4 +19,5 @@ export interface CultureKingsAlgoliaHits {
   styleGroup: string;
   sizes: string[];
   vendor: string;
+  variants: Variant[];
 }

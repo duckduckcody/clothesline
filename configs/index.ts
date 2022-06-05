@@ -1,3 +1,3 @@
-import { universalConfig } from './universal/universal-config';
+import { cultureKingsConfig } from './culture-kings-config';
 
-export const configs = [universalConfig];
+export const configs = [cultureKingsConfig];

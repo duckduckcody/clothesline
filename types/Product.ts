@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-const sizeSchema = z.object({ label: z.string(), inStock: z.boolean() });
+const sizeSchema = z.object({
+  label: z.string(),
+  inStock: z.boolean(),
+  price: z.number(),
+  oldPrice: z.number().optional(),
+});
 
 export const productSchema = z.object({
   name: z.string(),
