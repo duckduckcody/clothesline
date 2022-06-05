@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { genderSchema } from './Gender';
 import { sizeSchema } from './Size';
 
 export const productSchema = z.object({
@@ -9,6 +10,7 @@ export const productSchema = z.object({
   link: z.string(),
   images: z.array(z.string()),
   sizes: z.array(sizeSchema),
+  gender: z.array(genderSchema),
 });
 
 export type Product = z.infer<typeof productSchema>;
