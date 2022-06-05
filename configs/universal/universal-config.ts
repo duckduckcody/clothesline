@@ -1,11 +1,22 @@
 import { utils } from 'apify';
 import { Config } from '../../types/Config';
+import { Gender } from '../../types/Gender';
 import { productSchema } from '../../types/Product';
 import { incrementPageParam } from '../../utils/incrementPageParam';
 import { logBadProduct } from '../../utils/logging';
 import { stringToPrice } from '../../utils/stringToPrice';
 import { urlToCheerio } from '../../utils/urlToCheerio';
 import { getSizes } from './getSizes';
+
+const makeGender = (sizing: string): Gender[] => {
+  if (sizing.includes('She')) {
+    return ['Womens'];
+  } else if (sizing.includes('He')) {
+    return ['Mens'];
+  } else {
+    return ['Womens', 'Mens'];
+  }
+};
 
 export const universalConfig: Config = {
   name: 'Universal',
@@ -36,7 +47,9 @@ export const universalConfig: Config = {
     // 'https://www.universalstore.com/womens/shorts.html',
     // 'https://www.universalstore.com/womens/underwear.html',
     // 'https://www.universalstore.com/womens/swimwear.html',
-    'https://www.universalstore.com/lee-z-one-roller-jean-raven-damage-black.html',
+
+    // 'https://www.universalstore.com/lee-z-one-roller-jean-raven-damage-black.html',
+    'https://www.universalstore.com/perfect-stranger-limetree-bikini-top-lime.html',
   ],
   scrape: async (url: string) => {
     const $ = await urlToCheerio(url);
@@ -67,6 +80,12 @@ export const universalConfig: Config = {
         .replaceAll('Regular Price', '')
     );
 
+    const sizing = $(product.find('div.description-item-content').first())
+      .text()
+      .trim();
+
+    const gender = makeGender(sizing);
+
     const sizes = await getSizes($, price, oldPrice);
 
     const parseRes = productSchema.safeParse({
@@ -75,6 +94,8 @@ export const universalConfig: Config = {
       link: url,
       details: '',
       images,
+      sizing,
+      gender,
       sizes,
     });
 
@@ -99,13 +120,4 @@ export const universalConfig: Config = {
     return Boolean(res.length);
   },
   getNextPageUrl: (url: string) => incrementPageParam(url, 'p'),
-  getGender: (url: string) => {
-    if (url.includes('womens')) {
-      return ['Womens'];
-    } else if (url.includes('mens')) {
-      return ['Mens'];
-    } else {
-      return ['Mens', 'Womens'];
-    }
-  },
 };
