@@ -104,13 +104,4 @@ export const cultureKingsConfig: Config = {
 
     return `${splitUrl[0]}?${params.toString()}`;
   },
-  getGender: (url: string) => {
-    if (url.includes('womens')) {
-      return ['Womens'];
-    } else if (url.includes('mens')) {
-      return ['Mens'];
-    } else {
-      return ['Mens', 'Womens'];
-    }
-  },
 };

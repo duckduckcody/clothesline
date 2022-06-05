@@ -1,6 +1,6 @@
 import { utils } from 'apify';
 import { Config } from '../types/Config';
-import { productSchema } from '../types/Product';
+import { Product, productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
@@ -94,7 +94,8 @@ export const coolShirtzProductConfig: Config = {
       details,
       images,
       sizes,
-    });
+      gender: ['Mens', 'Womens'],
+    } as Product);
 
     if (parseRes.success) {
       return parseRes.data;
@@ -102,8 +103,5 @@ export const coolShirtzProductConfig: Config = {
       await logBadProduct(parseRes);
       return undefined;
     }
-  },
-  getGender: () => {
-    return ['Mens', 'Womens'];
   },
 };

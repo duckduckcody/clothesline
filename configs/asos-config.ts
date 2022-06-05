@@ -139,8 +139,4 @@ export const asosProductConfig: Config = {
 
     return `${splitUrl[0]}?${params.toString()}`;
   },
-  // TODO: correctly set gender
-  getGender: (url: string) => {
-    return ['Mens', 'Womens'];
-  },
 };

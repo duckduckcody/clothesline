@@ -42,5 +42,4 @@ export const replaceMeConfig: Config = {
   shouldEnqueueLinks: (url: string) => false,
   enqueueLinks: async (url, requestQueue) => true,
   getNextPageUrl: (url: string) => '',
-  getGender: (url: string) => ['Mens', 'Womens'],
 };
