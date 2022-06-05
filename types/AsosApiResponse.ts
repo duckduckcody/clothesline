@@ -55,5 +55,6 @@ export const asosDetailApiResponseSchema = z.object({
   // sizes
   variants: z.array(asosDetailApiResponseVariant),
   localisedData: z.array(z.object({ locale: z.string(), pdpUrl: z.string() })),
+  productType: z.object({ id: z.number(), name: z.string() }),
 });
 export type AsosDetailApiResponse = z.infer<typeof asosDetailApiResponseSchema>;
