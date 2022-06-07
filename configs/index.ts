@@ -1,3 +1,3 @@
-import { coolShirtzProductConfig } from './cool-shirtz-config';
+import { cultureKingsConfig } from './culture-kings-config';
 
-export const configs = [coolShirtzProductConfig];
+export const configs = [cultureKingsConfig];

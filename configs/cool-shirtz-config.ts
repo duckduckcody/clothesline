@@ -31,7 +31,7 @@ categoryMap
     gender: ['Mens', 'Womens'],
   })
   .set('https://shirtz.cool/collections/crop-tops', {
-    category: ['t-shirts'],
+    category: ['t-shirts', 'crop-tops'],
     gender: ['Womens'],
   })
   .set('https://shirtz.cool/collections/jackets', {

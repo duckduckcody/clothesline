@@ -1,4 +1,5 @@
 import algoliasearch from 'algoliasearch';
+import { utils } from 'apify';
 import { Config } from '../types/Config';
 import {
   CultureKingsAlgoliaHits,
@@ -7,6 +8,7 @@ import {
 import { Product, productSchema } from '../types/Product';
 import { Size } from '../types/Size';
 import { logBadProduct, logBadResponse } from '../utils/logging';
+import { makeCategories } from '../utils/makeCategories';
 import { makeGender } from '../utils/makeGender';
 
 const ALGOLIA_APP_ID = '22MG8HZKHO';
@@ -49,13 +51,16 @@ export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
   baseUrl: CULTURE_KINGS_URL,
   maximumProductsOnPage: 72,
+  fuckyTolerance: 10,
   categoryUrls: [
     'https://mens-tops',
-    'https://mens-bottoms',
-    'https://womens-tops',
-    'https://womens-bottoms',
+    // 'https://mens-bottoms',
+    // 'https://womens-tops',
+    // 'https://womens-bottoms',
   ],
   scrape: async (url: string) => {
+    await utils.sleep(1010);
+
     const collectedProducts: Product[] = [];
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);
@@ -68,6 +73,7 @@ export const cultureKingsConfig: Config = {
         ruleContexts: [`collection-${key}`],
         filters: `${CULTURE_KINGS_ALGOLIA_LIST_FILTERS}${key}`,
         headers: CULTURE_KINGS_ALGOLIA_HEADERS,
+        distinct: true,
       })
       .then((res) => {
         res.hits.forEach((product) => {
@@ -79,6 +85,7 @@ export const cultureKingsConfig: Config = {
             sizes: makeSizes(product.variants),
             brand: product.vendor,
             gender: makeGender(product.gender),
+            category: makeCategories(product.subCategoriesNormalised, product),
           });
 
           if (productParse.success) {

@@ -36,27 +36,40 @@ configs.map((config) => {
 
           data = await config.scrape(request.url);
 
-          if (data) {
+          if (data && !Array.isArray(data)) {
             const dataset = await openDataset(config.name);
             await dataset.pushData({
               name: config.name,
               url: request.url,
+              length: 1,
               data,
             });
           } else if (!data && request.retryCount === 0) {
             throw new Error(`No data found for ${request.url}, retrying...`);
           }
 
-          // if array its a list, add next page to queue.
-          if (
-            Array.isArray(data) &&
-            config.getNextPageUrl &&
-            data.length >=
-              config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
-          ) {
-            await requestQueue.addRequest({
-              url: config.getNextPageUrl(request.url),
-            });
+          if (Array.isArray(data)) {
+            if (data.length !== 0) {
+              const dataset = await openDataset(config.name);
+              await dataset.pushData({
+                name: config.name,
+                url: request.url,
+                length: data.length,
+                data,
+              });
+
+              if (
+                config.getNextPageUrl &&
+                data.length >=
+                  config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
+              ) {
+                await requestQueue.addRequest({
+                  url: config.getNextPageUrl(request.url),
+                });
+              }
+            } else if (data.length === 0 && request.retryCount === 0) {
+              throw new Error(`No data found for ${request.url}, retrying...`);
+            }
           }
         }
       },
@@ -66,5 +79,16 @@ configs.map((config) => {
     });
 
     await crawler.run();
+
+    const dataSet = await openDataset('Culture Kings');
+    const length = await dataSet.reduce(
+      (memo, value) => {
+        // @ts-ignore
+        memo.length += value.length;
+        return memo;
+      },
+      { length: 0 }
+    );
+    console.log('number of hits', length);
   });
 });
