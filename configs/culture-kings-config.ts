@@ -54,9 +54,9 @@ export const cultureKingsConfig: Config = {
   fuckyTolerance: 10,
   categoryUrls: [
     'https://mens-tops',
-    // 'https://mens-bottoms',
-    // 'https://womens-tops',
-    // 'https://womens-bottoms',
+    'https://mens-bottoms',
+    'https://womens-tops',
+    'https://womens-bottoms',
   ],
   scrape: async (url: string) => {
     await utils.sleep(1010);
