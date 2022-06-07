@@ -3,23 +3,14 @@ import { Category } from '../../types/Category';
 import { Config } from '../../types/Config';
 import { Gender } from '../../types/Gender';
 import { productSchema } from '../../types/Product';
-import { getParams } from '../../utils/getParams';
+import { encodeCategoryAndGenderToRequest } from '../../utils/encodeCategoryAndGenderToRequest';
+import { getCategoryAndGenderFromUrl } from '../../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../../utils/incrementPageParam';
 import { logBadProduct } from '../../utils/logging';
 import { makeCategories } from '../../utils/makeCategories';
 import { stringToPrice } from '../../utils/stringToPrice';
 import { urlToCheerio } from '../../utils/urlToCheerio';
 import { getSizes } from './getSizes';
-
-const makeGender = (sizing: string): Gender[] => {
-  if (sizing.includes('She')) {
-    return ['Womens'];
-  } else if (sizing.includes('He')) {
-    return ['Mens'];
-  } else {
-    return ['Womens', 'Mens'];
-  }
-};
 
 const categoryMap = new Map<
   string,
@@ -127,10 +118,7 @@ export const universalConfig: Config = {
   fuckyTolerance: 5,
   categoryUrls: [...categoryMap.keys()],
   scrape: async (url: string) => {
-    console.log('url', url);
-    const params = getParams(url);
-    const category = params.get('category')?.split(',') || [];
-    const gender = params.get('gender')?.split(',') || [];
+    const { gender, categories } = getCategoryAndGenderFromUrl(url);
 
     const $ = await urlToCheerio(url);
 
@@ -175,7 +163,7 @@ export const universalConfig: Config = {
       sizing,
       gender,
       sizes,
-      category: makeCategories(category),
+      category: makeCategories(categories),
     });
 
     if (parseRes.success) {
@@ -195,14 +183,8 @@ export const universalConfig: Config = {
       limit: universalConfig.maximumProductsOnPage,
       selector: 'a.product-item-info',
       baseUrl: universalConfig.baseUrl,
-      transformRequestFunction: (request) => {
-        const params = new URLSearchParams();
-        params.set('category', categoryMap.get(url)?.category.toString() || '');
-        params.set('gender', categoryMap.get(url)?.gender.toString() || '');
-
-        request.url = `${request.url}?${params.toString()}`;
-        return request;
-      },
+      transformRequestFunction: (request) =>
+        encodeCategoryAndGenderToRequest(url, categoryMap, request),
     });
     return Boolean(res.length);
   },

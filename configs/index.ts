@@ -1,3 +1,3 @@
-import { universalConfig } from './universal/universal-config';
+import { coolShirtzProductConfig } from './cool-shirtz-config';
 
-export const configs = [universalConfig];
+export const configs = [coolShirtzProductConfig];

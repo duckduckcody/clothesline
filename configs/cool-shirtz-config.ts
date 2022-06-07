@@ -1,26 +1,53 @@
 import { utils } from 'apify';
+import { CategoryMap } from '../types/CategoryMap';
 import { Config } from '../types/Config';
-import { Product, productSchema } from '../types/Product';
+import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
 import { absoluteUrl } from '../utils/absoluteUrl';
+import { encodeCategoryAndGenderToRequest } from '../utils/encodeCategoryAndGenderToRequest';
+import { getCategoryAndGenderFromUrl } from '../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';
+import { makeCategories } from '../utils/makeCategories';
 import { stringToPrice } from '../utils/stringToPrice';
 import { urlToCheerio } from '../utils/urlToCheerio';
+
+const categoryMap: CategoryMap = new Map();
+categoryMap
+  .set('https://shirtz.cool/collections/t-shirts', {
+    category: ['t-shirts'],
+    gender: ['Mens', 'Womens'],
+  })
+  .set('https://shirtz.cool/collections/button-up-shirts', {
+    category: ['t-shirts'],
+    gender: ['Mens', 'Womens'],
+  })
+  .set('https://shirtz.cool/collections/longsleeve', {
+    category: ['t-shirts'],
+    gender: ['Mens', 'Womens'],
+  })
+  .set('https://shirtz.cool/collections/jumpers', {
+    category: ['jumpers'],
+    gender: ['Mens', 'Womens'],
+  })
+  .set('https://shirtz.cool/collections/crop-tops', {
+    category: ['t-shirts'],
+    gender: ['Womens'],
+  })
+  .set('https://shirtz.cool/collections/jackets', {
+    category: ['jackets'],
+    gender: ['Mens', 'Womens'],
+  })
+  .set('https://shirtz.cool/collections/pants', {
+    category: ['pants'],
+    gender: ['Mens', 'Womens'],
+  });
 
 export const coolShirtzProductConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
-  categoryUrls: [
-    'https://shirtz.cool/collections/t-shirts',
-    'https://shirtz.cool/collections/button-up-shirts',
-    'https://shirtz.cool/collections/longsleeve',
-    'https://shirtz.cool/collections/jumpers',
-    'https://shirtz.cool/collections/crop-tops',
-    'https://shirtz.cool/collections/jackets',
-    'https://shirtz.cool/collections/pants',
-  ],
+  categoryUrls: [...categoryMap.keys()],
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueLinks: async (url, requestQueue) => {
     const $ = await urlToCheerio(url);
@@ -30,13 +57,15 @@ export const coolShirtzProductConfig: Config = {
       limit: coolShirtzProductConfig.maximumProductsOnPage,
       selector: 'a.grid-view-item__link',
       baseUrl: coolShirtzProductConfig.baseUrl,
+      transformRequestFunction: (request) =>
+        encodeCategoryAndGenderToRequest(url, categoryMap, request),
     });
 
     return Boolean(res.length);
   },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
-    // get sizes to work.............
+    const { gender, categories } = getCategoryAndGenderFromUrl(url);
 
     const $ = await urlToCheerio(url);
 
@@ -94,13 +123,14 @@ export const coolShirtzProductConfig: Config = {
       details,
       images,
       sizes,
-      gender: ['Mens', 'Womens'],
-    } as Product);
+      gender,
+      category: makeCategories(categories),
+    });
 
     if (parseRes.success) {
       return parseRes.data;
     } else {
-      await logBadProduct(parseRes);
+      await logBadProduct(parseRes, { name, url });
       return undefined;
     }
   },
