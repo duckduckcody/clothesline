@@ -1,7 +1,10 @@
 import { Category, categorySchema } from '../types/Category';
 import { logBadProduct } from './logging';
 
-export const makeCategories = (c: string): Category[] | undefined => {
+export const makeCategories = (
+  c: string,
+  loggingData?: object
+): Category[] | undefined => {
   const category = c.toLocaleLowerCase();
 
   const categoryParse = categorySchema.safeParse(category);
@@ -9,11 +12,21 @@ export const makeCategories = (c: string): Category[] | undefined => {
   if (categoryParse.success) {
     return [categoryParse.data];
   } else {
-    if (category === 'sweatshirts' || category === 'fleeces') {
-      return ['jumpers'];
-    } else {
-      logBadProduct({ message: 'Error making a category', category });
-      return undefined;
+    switch (category) {
+      case 'sweatshirts':
+      case 'fleeces':
+        return ['jumpers'];
+      case 'gilets':
+        return ['jackets'];
+      case 'dungarees':
+        return ['jeans'];
+      default:
+        logBadProduct({
+          message: 'Error making a category',
+          category,
+          loggingData,
+        });
+        return undefined;
     }
   }
 };
