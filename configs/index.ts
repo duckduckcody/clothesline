@@ -1,3 +1,3 @@
-import { asosProductConfig } from './asos-config';
+import { universalConfig } from './universal/universal-config';
 
-export const configs = [asosProductConfig];
+export const configs = [universalConfig];

@@ -1,9 +1,12 @@
 import { utils } from 'apify';
+import { Category } from '../../types/Category';
 import { Config } from '../../types/Config';
 import { Gender } from '../../types/Gender';
 import { productSchema } from '../../types/Product';
+import { getParams } from '../../utils/getParams';
 import { incrementPageParam } from '../../utils/incrementPageParam';
 import { logBadProduct } from '../../utils/logging';
+import { makeCategories } from '../../utils/makeCategories';
 import { stringToPrice } from '../../utils/stringToPrice';
 import { urlToCheerio } from '../../utils/urlToCheerio';
 import { getSizes } from './getSizes';
@@ -18,40 +21,117 @@ const makeGender = (sizing: string): Gender[] => {
   }
 };
 
+const categoryMap = new Map<
+  string,
+  { category: Category[]; gender: Gender[] }
+>();
+
+categoryMap
+  .set('https://www.universalstore.com/mens/t-shirts.html', {
+    category: ['t-shirts'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/jeans.html', {
+    category: ['jeans'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/hoodies-sweaters.html', {
+    category: ['hoodies'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/jackets-coats.html', {
+    category: ['jackets'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/overshirts.html', {
+    category: ['jackets'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/shirts-polos.html', {
+    category: ['t-shirts'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/pants.html', {
+    category: ['pants'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/shorts.html', {
+    category: ['shorts'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/muscle-shirts-singlets.html', {
+    category: ['singlets'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/mens/underwear.html', {
+    category: ['underwear'],
+    gender: ['Mens'],
+  })
+  .set('https://www.universalstore.com/womens/tops.html', {
+    category: ['tops'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/overshirts.html', {
+    category: ['jackets'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/tshirts-tanktops.html', {
+    category: ['t-shirts'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/jeans.html', {
+    category: ['jeans'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/dresses.html', {
+    category: ['dresses'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/sets-coordinates.html', {
+    category: ['co-ords'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/jumpers-knits.html', {
+    category: ['jumpers'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/coats-jackets.html', {
+    category: ['jackets'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/pants.html', {
+    category: ['pants'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/skirts.html', {
+    category: ['skirts'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/shorts.html', {
+    category: ['shorts'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/underwear.html', {
+    category: ['underwear'],
+    gender: ['Womens'],
+  })
+  .set('https://www.universalstore.com/womens/swimwear.html', {
+    category: ['swimwear'],
+    gender: ['Womens'],
+  });
+
 export const universalConfig: Config = {
   name: 'Universal',
   baseUrl: 'https://www.universalstore.com',
   maximumProductsOnPage: 60,
   fuckyTolerance: 5,
-  categoryUrls: [
-    // 'https://www.universalstore.com/mens/t-shirts.html',
-    // 'https://www.universalstore.com/mens/jeans.html',
-    // 'https://www.universalstore.com/mens/hoodies-sweaters.html',
-    // 'https://www.universalstore.com/mens/jackets-coats.html',
-    // 'https://www.universalstore.com/mens/overshirts.html',
-    // 'https://www.universalstore.com/mens/shirts-polos.html',
-    // 'https://www.universalstore.com/mens/pants.html',
-    // 'https://www.universalstore.com/mens/shorts.html',
-    // 'https://www.universalstore.com/mens/muscle-shirts-singlets.html',
-    // 'https://www.universalstore.com/mens/underwear.html',
-    // 'https://www.universalstore.com/womens/tops.html',
-    // 'https://www.universalstore.com/womens/overshirts.html',
-    // 'https://www.universalstore.com/womens/tshirts-tanktops.html',
-    // 'https://www.universalstore.com/womens/jeans.html',
-    // 'https://www.universalstore.com/womens/dresses.html',
-    // 'https://www.universalstore.com/womens/sets-coordinates.html',
-    // 'https://www.universalstore.com/womens/jumpers-knits.html',
-    // 'https://www.universalstore.com/womens/coats-jackets.html',
-    // 'https://www.universalstore.com/womens/pants.html',
-    // 'https://www.universalstore.com/womens/skirts.html',
-    // 'https://www.universalstore.com/womens/shorts.html',
-    // 'https://www.universalstore.com/womens/underwear.html',
-    // 'https://www.universalstore.com/womens/swimwear.html',
-
-    // 'https://www.universalstore.com/lee-z-one-roller-jean-raven-damage-black.html',
-    'https://www.universalstore.com/perfect-stranger-limetree-bikini-top-lime.html',
-  ],
+  categoryUrls: [...categoryMap.keys()],
   scrape: async (url: string) => {
+    console.log('url', url);
+    const params = getParams(url);
+    const category = params.get('category')?.split(',') || [];
+    const gender = params.get('gender')?.split(',') || [];
+
     const $ = await urlToCheerio(url);
 
     const product = $('#maincontent');
@@ -84,8 +164,6 @@ export const universalConfig: Config = {
       .text()
       .trim();
 
-    const gender = makeGender(sizing);
-
     const sizes = await getSizes($, price, oldPrice);
 
     const parseRes = productSchema.safeParse({
@@ -97,6 +175,7 @@ export const universalConfig: Config = {
       sizing,
       gender,
       sizes,
+      category: makeCategories(category),
     });
 
     if (parseRes.success) {
@@ -116,6 +195,14 @@ export const universalConfig: Config = {
       limit: universalConfig.maximumProductsOnPage,
       selector: 'a.product-item-info',
       baseUrl: universalConfig.baseUrl,
+      transformRequestFunction: (request) => {
+        const params = new URLSearchParams();
+        params.set('category', categoryMap.get(url)?.category.toString() || '');
+        params.set('gender', categoryMap.get(url)?.gender.toString() || '');
+
+        request.url = `${request.url}?${params.toString()}`;
+        return request;
+      },
     });
     return Boolean(res.length);
   },

@@ -99,7 +99,7 @@ export const asosProductConfig: Config = {
         images: product.media.images.map((i) => i.url),
         sizes: makeSizes(product.variants),
         gender: makeGender(product.gender),
-        category: makeCategories(product.productType.name),
+        category: makeCategories([product.productType.name]),
       } as Product);
 
       if (productParse.success) {
