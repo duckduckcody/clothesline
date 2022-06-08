@@ -1,8 +1,9 @@
 import { BasicCrawlerOptions, RequestQueue } from 'apify';
 import { Product } from './Product';
+import { Website } from './Website';
 
 export interface Config {
-  name: string;
+  name: Website;
   baseUrl: string;
   maximumProductsOnPage: number;
   fuckyTolerance?: number;

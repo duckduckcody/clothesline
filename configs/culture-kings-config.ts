@@ -85,6 +85,7 @@ export const cultureKingsConfig: Config = {
             brand: product.vendor,
             gender: makeGender(product.gender),
             category: makeCategories(product.subCategoriesNormalised, product),
+            website: cultureKingsConfig.name,
           });
 
           if (productParse.success) {

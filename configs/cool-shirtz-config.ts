@@ -43,7 +43,7 @@ categoryMap
     gender: ['Mens', 'Womens'],
   });
 
-export const coolShirtzProductConfig: Config = {
+export const coolShirtzConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
@@ -54,9 +54,9 @@ export const coolShirtzProductConfig: Config = {
     const res = await utils.enqueueLinks({
       $,
       requestQueue,
-      limit: coolShirtzProductConfig.maximumProductsOnPage,
+      limit: coolShirtzConfig.maximumProductsOnPage,
       selector: 'a.grid-view-item__link',
-      baseUrl: coolShirtzProductConfig.baseUrl,
+      baseUrl: coolShirtzConfig.baseUrl,
       transformRequestFunction: (request) =>
         encodeCategoryAndGenderToRequest(url, categoryMap, request),
     });
@@ -119,12 +119,13 @@ export const coolShirtzProductConfig: Config = {
     const parseRes = productSchema.safeParse({
       link: url,
       name,
-      brand: coolShirtzProductConfig.name,
+      brand: coolShirtzConfig.name,
       details,
       images,
       sizes,
       gender,
       category: makeCategories(categories),
+      website: coolShirtzConfig.name,
     });
 
     if (parseRes.success) {

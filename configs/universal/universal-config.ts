@@ -164,6 +164,7 @@ export const universalConfig: Config = {
       gender,
       sizes,
       category: makeCategories(categories),
+      website: universalConfig.name,
     });
 
     if (parseRes.success) {

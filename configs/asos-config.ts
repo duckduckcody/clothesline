@@ -5,7 +5,7 @@ import {
   Variant,
 } from '../types/AsosApiResponse';
 import { Config } from '../types/Config';
-import { Product, productSchema } from '../types/Product';
+import { productSchema } from '../types/Product';
 import { Size } from '../types/Size';
 import { addRequests } from '../utils/add-requests';
 import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
@@ -29,7 +29,7 @@ const makeSizes = (variants: Variant[]): Size[] =>
     oldPrice: v.price.previous.value,
   }));
 
-export const asosProductConfig: Config = {
+export const asosConfig: Config = {
   name: 'Asos',
   baseUrl: 'https://www.asos.com/au',
   maximumProductsOnPage: 72,
@@ -80,6 +80,7 @@ export const asosProductConfig: Config = {
     `${API_URL}/19632${params}`, // Women's Co-ords
   ],
   scrape: async (url: string) => {
+    // asos api is throttled.
     await utils.sleep(1010);
 
     const id = url.split('https://')[1];
@@ -100,7 +101,8 @@ export const asosProductConfig: Config = {
         sizes: makeSizes(product.variants),
         gender: makeGender(product.gender),
         category: makeCategories([product.productType.name]),
-      } as Product);
+        website: asosConfig.name,
+      });
 
       if (productParse.success) {
         return productParse.data;
@@ -136,8 +138,8 @@ export const asosProductConfig: Config = {
       'offset',
       `${
         offset
-          ? Number(offset) + asosProductConfig.maximumProductsOnPage
-          : asosProductConfig.maximumProductsOnPage
+          ? Number(offset) + asosConfig.maximumProductsOnPage
+          : asosConfig.maximumProductsOnPage
       }`
     );
 
