@@ -1,5 +1,11 @@
 import { Client } from 'typesense';
 
+// start server
+// sudo /usr/bin/./typesense-server --config=/etc/typesense/typesense-server.ini
+
+// api key generated in
+// /etc/typesense/typesense-server.ini
+
 export const typeSenseClient = new Client({
   nodes: [
     {
