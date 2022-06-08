@@ -73,6 +73,7 @@ configs.map((config) => {
 
     const dataSet = await openDataset();
     const data = await dataSet.map((product) => product);
-    console.log('data', data.length);
+
+    console.log('products scraped', data.length);
   });
 });

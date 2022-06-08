@@ -1,5 +1,6 @@
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections';
 
+export const productCollectionName = 'products';
 export const TypeSenseProductSchema: CollectionCreateSchema = {
   name: 'products',
   fields: [
@@ -31,6 +32,15 @@ export const TypeSenseProductSchema: CollectionCreateSchema = {
     {
       name: 'sizes',
       type: 'string[]',
+    },
+    {
+      name: 'price',
+      type: 'float',
+    },
+    {
+      name: 'oldPrice',
+      type: 'float',
+      optional: true,
     },
     {
       name: 'gender',

@@ -6,7 +6,9 @@
   "scripts": {
     "scrape": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
     "s": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
-    "makeCollections": "npx ts-node  ./scripts/makeCollections",
+    "makeCollections": "npx ts-node ./scripts/makeCollections",
+    "push": "npx ts-node ./scripts/push",
+    "search": "npx ts-node ./scripts/search",
     "test": "jest",
     "test:watch": "jest --watch"
   },
