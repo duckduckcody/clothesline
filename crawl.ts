@@ -38,12 +38,7 @@ configs.map((config) => {
 
           if (data && !Array.isArray(data)) {
             const dataset = await openDataset();
-            await dataset.pushData({
-              name: config.name,
-              url: request.url,
-              length: 1,
-              data,
-            });
+            await dataset.pushData(data);
           } else if (!data && request.retryCount === 0) {
             throw new Error(`No data found for ${request.url}, retrying...`);
           }
@@ -51,12 +46,7 @@ configs.map((config) => {
           if (Array.isArray(data)) {
             if (data.length !== 0) {
               const dataset = await openDataset();
-              await dataset.pushData({
-                name: config.name,
-                url: request.url,
-                length: data.length,
-                data,
-              });
+              await dataset.pushData(data);
 
               if (
                 config.getNextPageUrl &&
