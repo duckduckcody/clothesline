@@ -11,6 +11,7 @@ export const TypeSenseProductSchema: CollectionCreateSchema = {
     {
       name: 'brand',
       type: 'string',
+      facet: true,
     },
     {
       name: 'details',
@@ -32,10 +33,12 @@ export const TypeSenseProductSchema: CollectionCreateSchema = {
     {
       name: 'sizes',
       type: 'string[]',
+      facet: true,
     },
     {
       name: 'price',
       type: 'float',
+      facet: true,
     },
     {
       name: 'oldPrice',
@@ -45,14 +48,17 @@ export const TypeSenseProductSchema: CollectionCreateSchema = {
     {
       name: 'gender',
       type: 'string[]',
+      facet: true,
     },
     {
       name: 'category',
       type: 'string[]',
+      facet: true,
     },
     {
       name: 'website',
       type: 'string',
+      facet: true,
     },
   ],
 };
