@@ -1,7 +1,7 @@
 import Apify, { openDataset } from 'apify';
-import { configs } from './configs';
-import { Product } from './types/Product';
-import { addRequests } from './utils/add-requests';
+import { configs } from '../configs';
+import { Product } from '../types/Product';
+import { addRequests } from '../utils/add-requests';
 
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
@@ -48,6 +48,7 @@ configs.map((config) => {
               const dataset = await openDataset();
               await dataset.pushData(data);
 
+              // max products returned, add next page to queue
               if (
                 config.getNextPageUrl &&
                 data.length >=
@@ -71,14 +72,7 @@ configs.map((config) => {
     await crawler.run();
 
     const dataSet = await openDataset();
-    const length = await dataSet.reduce(
-      (memo, value) => {
-        // @ts-ignore
-        memo.length += value.length;
-        return memo;
-      },
-      { length: 0 }
-    );
-    console.log('number of hits', length);
+    const data = await dataSet.map((product) => product);
+    console.log('data', data.length);
   });
 });

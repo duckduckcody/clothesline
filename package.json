@@ -4,8 +4,9 @@
   "description": "clothes scraper for stylelist",
   "main": "crawl.ts",
   "scripts": {
-    "scrape": "rm -rf apify_storage && npx ts-node crawl",
-    "s": "rm -rf apify_storage && npx ts-node crawl",
+    "scrape": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
+    "s": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
+    "makeCollections": "npx ts-node  ./scripts/makeCollections",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -20,9 +21,11 @@
   },
   "homepage": "https://github.com/duckduckcody/clothesline#readme",
   "dependencies": {
+    "@babel/runtime": "^7.18.3",
     "algoliasearch": "^4.13.1",
     "apify": "^2.3.2",
     "striptags": "^3.2.0",
+    "typesense": "^1.3.0",
     "zod": "^3.16.0"
   },
   "devDependencies": {
