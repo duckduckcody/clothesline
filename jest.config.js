@@ -4,5 +4,8 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: true,
   collectCoverageFrom: ['configs/**/*.ts', 'utils/**/*.ts', 'scripts/**/*.ts'],
-  coveragePathIgnorePatterns: ['<rootDir>/node_modules'],
+  coveragePathIgnorePatterns: [
+    '<rootDir>/node_modules',
+    '<rootDir>/apify_storage',
+  ],
 };
