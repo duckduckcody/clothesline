@@ -8,6 +8,6 @@ export const typeSenseClient = new Client({
       protocol: 'http',
     },
   ],
-  apiKey: 'JTaNZQxQRu86z8ighMdwYoRDjw5zlSJ1r5C5rlX6CclRQ4cn',
+  apiKey: 'xyz',
   connectionTimeoutSeconds: 2,
 });
