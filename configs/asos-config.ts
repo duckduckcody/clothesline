@@ -7,7 +7,7 @@ import {
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { Size } from '../types/Size';
-import { addRequests } from '../utils/add-requests';
+import { addRequests } from '../utils/add-requests/add-requests';
 import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
 import { makeGender } from '../utils/makeGender';

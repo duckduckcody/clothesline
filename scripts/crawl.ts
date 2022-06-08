@@ -1,7 +1,7 @@
 import Apify, { openDataset } from 'apify';
 import { configs } from '../configs';
 import { Product } from '../types/Product';
-import { addRequests } from '../utils/add-requests';
+import { addRequests } from '../utils/add-requests/add-requests';
 
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
