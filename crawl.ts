@@ -37,7 +37,7 @@ configs.map((config) => {
           data = await config.scrape(request.url);
 
           if (data && !Array.isArray(data)) {
-            const dataset = await openDataset(config.name);
+            const dataset = await openDataset();
             await dataset.pushData({
               name: config.name,
               url: request.url,
@@ -50,7 +50,7 @@ configs.map((config) => {
 
           if (Array.isArray(data)) {
             if (data.length !== 0) {
-              const dataset = await openDataset(config.name);
+              const dataset = await openDataset();
               await dataset.pushData({
                 name: config.name,
                 url: request.url,
@@ -80,7 +80,7 @@ configs.map((config) => {
 
     await crawler.run();
 
-    const dataSet = await openDataset('Culture Kings');
+    const dataSet = await openDataset();
     const length = await dataSet.reduce(
       (memo, value) => {
         // @ts-ignore

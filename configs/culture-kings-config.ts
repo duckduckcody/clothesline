@@ -51,7 +51,6 @@ export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
   baseUrl: CULTURE_KINGS_URL,
   maximumProductsOnPage: 72,
-  fuckyTolerance: 10,
   categoryUrls: [
     'https://mens-tops',
     'https://mens-bottoms',

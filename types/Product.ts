@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { categorySchema } from './Category';
 import { genderSchema } from './Gender';
 import { sizeSchema } from './Size';
+import { websiteSchema } from './Website';
 
 export const productSchema = z.object({
   name: z.string(),
@@ -13,6 +14,7 @@ export const productSchema = z.object({
   sizes: z.array(sizeSchema),
   gender: z.array(genderSchema),
   category: z.array(categorySchema),
+  website: z.string(websiteSchema),
 });
 
 export type Product = z.infer<typeof productSchema>;
