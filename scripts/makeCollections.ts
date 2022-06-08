@@ -2,7 +2,7 @@ import {
   productCollectionName,
   TypeSenseProductSchema,
 } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typeSenseClient';
+import { typeSenseClient } from '../typesense/typeSenseClient';
 
 const makeCollections = async () => {
   try {

@@ -1,6 +1,6 @@
 import { openDataset } from 'apify';
 import { productCollectionName } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typeSenseClient';
+import { typeSenseClient } from '../typesense/typeSenseClient';
 
 export const push = async () => {
   const dataSet = await openDataset();

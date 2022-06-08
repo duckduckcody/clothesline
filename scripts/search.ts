@@ -1,5 +1,5 @@
 import { productCollectionName } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typeSenseClient';
+import { typeSenseClient } from '../typesense/typeSenseClient';
 
 export const search = async () => {
   const res = await typeSenseClient
