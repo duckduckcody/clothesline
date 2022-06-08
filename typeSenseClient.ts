@@ -6,6 +6,9 @@ import { Client } from 'typesense';
 // api key generated in
 // /etc/typesense/typesense-server.ini
 
+// health check
+// curl http://localhost:8108/health
+
 export const typeSenseClient = new Client({
   nodes: [
     {
