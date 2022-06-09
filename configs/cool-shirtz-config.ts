@@ -5,7 +5,7 @@ import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
 import { addCategoryGenderToRequest } from '../utils/add-category-gender-to-request/add-category-gender-to-request';
 import { getCategoryAndGenderFromUrl } from '../utils/getCategoryAndGenderFromUrl';
-import { incrementPageParam } from '../utils/incrementPageParam';
+import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
 import { logBadProduct } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
 import { protocolAbsolute } from '../utils/protocol-absolute/protocol-absolute';
