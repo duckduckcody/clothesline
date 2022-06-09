@@ -1,10 +1,6 @@
 import Apify from 'apify';
 import { addRequests } from './add-requests';
 
-jest.mock('apify', () => ({
-  openRequestQueue: jest.fn(() => ({ addRequest: jest.fn() })),
-}));
-
 describe('add-requests', () => {
   it('adds no requests with empty urls', async () => {
     const requestQueue = await Apify.openRequestQueue();
