@@ -12,7 +12,7 @@
     "health": "curl http://localhost:8108/health",
     "typesense": "sudo /usr/bin/./typesense-server --config=typesense/typesense.config.ini",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest -o --watch"
   },
   "repository": {
     "type": "git",
