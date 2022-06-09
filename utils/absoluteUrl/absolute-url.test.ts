@@ -1,4 +1,4 @@
-import { absoluteUrl } from './absoluteUrl';
+import { absoluteUrl } from './absolute-url';
 
 describe('absoluteUrl', () => {
   test('undefined when nothing passed', () => {

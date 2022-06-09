@@ -3,7 +3,7 @@ import { CategoryMap } from '../types/CategoryMap';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
-import { absoluteUrl } from '../utils/absoluteUrl';
+import { absoluteUrl } from '../utils/absoluteUrl/absolute-url';
 import { encodeCategoryAndGenderToRequest } from '../utils/encodeCategoryAndGenderToRequest';
 import { getCategoryAndGenderFromUrl } from '../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
