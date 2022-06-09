@@ -9,8 +9,8 @@ import { productSchema } from '../types/Product';
 import { Size } from '../types/Size';
 import { addRequests } from '../utils/add-requests/add-requests';
 import { logBadEnqueue, logBadProduct, logBadResponse } from '../utils/logging';
+import { makeGender } from '../utils/make-gender/make-gender';
 import { makeCategories } from '../utils/makeCategories';
-import { makeGender } from '../utils/makeGender';
 import { stripHtml } from '../utils/strip-html';
 import { urlToJson } from '../utils/urlToJson';
 

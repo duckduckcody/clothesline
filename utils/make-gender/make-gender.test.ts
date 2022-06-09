@@ -1,13 +1,7 @@
-import { logBadProduct } from './logging';
-import { makeGender } from './makeGender';
+import { logBadProduct } from '../logging';
+import { makeGender } from './make-gender';
 
-jest.mock('./logging', () => {
-  return {
-    logBadProduct: jest.fn(async () => {
-      return Promise.resolve();
-    }),
-  };
-});
+jest.mock('../logging');
 
 describe('makeGender()', () => {
   test('women to Womens', () => {
@@ -22,8 +16,11 @@ describe('makeGender()', () => {
     expect(makeGender('unisex')).toStrictEqual(['Mens', 'Womens']);
   });
 
-  test('log and return undefined when given odd parameter', () => {
+  test('log and return undefined when given invalid parameter', () => {
     expect(makeGender('abcd')).toBe(undefined);
-    expect(logBadProduct).toHaveBeenCalled();
+    expect(logBadProduct).toHaveBeenCalledWith({
+      message: 'unknown gender response',
+      gender: 'abcd',
+    });
   });
 });

@@ -8,8 +8,8 @@ import {
 import { Product, productSchema } from '../types/Product';
 import { Size } from '../types/Size';
 import { logBadProduct, logBadResponse } from '../utils/logging';
+import { makeGender } from '../utils/make-gender/make-gender';
 import { makeCategories } from '../utils/makeCategories';
-import { makeGender } from '../utils/makeGender';
 
 const ALGOLIA_APP_ID = '22MG8HZKHO';
 const ALGOLIA_API_KEY = '120a2dd1a67e962183768696b750a52c';
