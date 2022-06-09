@@ -1,10 +1,10 @@
 import { RequestQueue } from 'apify';
 
-// when given urls, check that they are added to the queue using the addRequest functions
-// mock the queue object where the addRequest is a jest.fn()
-
-// can you make a mock out of a type?
-
+/**
+ * adds multiple urls to a apify RequestQueue
+ * @param queue apify RequestQueue
+ * @param urls array of urls to add
+ */
 export const addRequests = async (queue: RequestQueue, urls: string[]) => {
   let results = urls.map((url) => {
     queue.addRequest({ url });

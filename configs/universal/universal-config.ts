@@ -3,7 +3,7 @@ import { Category } from '../../types/Category';
 import { Config } from '../../types/Config';
 import { Gender } from '../../types/Gender';
 import { productSchema } from '../../types/Product';
-import { encodeCategoryAndGenderToRequest } from '../../utils/encodeCategoryAndGenderToRequest';
+import { addCategoryGenderToRequest } from '../../utils/add-category-gender-to-request/add-category-gender-to-request';
 import { getCategoryAndGenderFromUrl } from '../../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../../utils/incrementPageParam';
 import { logBadProduct } from '../../utils/logging';
@@ -185,7 +185,7 @@ export const universalConfig: Config = {
       selector: 'a.product-item-info',
       baseUrl: universalConfig.baseUrl,
       transformRequestFunction: (request) =>
-        encodeCategoryAndGenderToRequest(url, categoryMap, request),
+        addCategoryGenderToRequest(url, categoryMap, request),
     });
     return Boolean(res.length);
   },

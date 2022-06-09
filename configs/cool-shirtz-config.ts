@@ -3,12 +3,12 @@ import { CategoryMap } from '../types/CategoryMap';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
-import { absoluteUrl } from '../utils/absoluteUrl/absolute-url';
-import { encodeCategoryAndGenderToRequest } from '../utils/encodeCategoryAndGenderToRequest';
+import { addCategoryGenderToRequest } from '../utils/add-category-gender-to-request/add-category-gender-to-request';
 import { getCategoryAndGenderFromUrl } from '../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../utils/incrementPageParam';
 import { logBadProduct } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
+import { protocolAbsolute } from '../utils/protocol-absolute/protocol-absolute';
 import { stringToPrice } from '../utils/stringToPrice';
 import { urlToCheerio } from '../utils/urlToCheerio';
 
@@ -58,7 +58,7 @@ export const coolShirtzConfig: Config = {
       selector: 'a.grid-view-item__link',
       baseUrl: coolShirtzConfig.baseUrl,
       transformRequestFunction: (request) =>
-        encodeCategoryAndGenderToRequest(url, categoryMap, request),
+        addCategoryGenderToRequest(url, categoryMap, request),
     });
 
     return Boolean(res.length);
@@ -75,7 +75,7 @@ export const coolShirtzConfig: Config = {
 
     const images: string[] = [];
     product.find('a.product-single__thumbnail').each((i, el) => {
-      const image = absoluteUrl($(el).attr('data-imagesrc'));
+      const image = protocolAbsolute($(el).attr('data-imagesrc'));
       if (image) {
         images.push(image);
       }
