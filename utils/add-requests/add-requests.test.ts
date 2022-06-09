@@ -31,7 +31,7 @@ describe('add-requests', () => {
     ]);
     expect(requestQueue.addRequest).toHaveBeenCalledTimes(3);
 
-    // TODO: improve this
+    // TODO: fix this typing
     // @ts-ignore
     expect(requestQueue.addRequest.mock.calls).toEqual([
       [{ url: 'https://www.google.com' }],
