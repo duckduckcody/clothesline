@@ -23,4 +23,16 @@ describe('makeGender()', () => {
       gender: 'abcd',
     });
   });
+
+  test('mens array correctly converted', () => {
+    expect(makeGender(['Mens'])).toStrictEqual(['Mens']);
+  });
+
+  test('mens, womens array correctly converted', () => {
+    expect(makeGender(['Mens', 'Womens'])).toStrictEqual(['Mens', 'Womens']);
+  });
+
+  test('Unisex array correctly converted', () => {
+    expect(makeGender(['Unisex'])).toStrictEqual(['Womens', 'Mens']);
+  });
 });

@@ -35,5 +35,6 @@ export const categorySchema = z.enum([
   'activewear',
   'crop-tops',
   'sets',
+  'bras',
 ]);
 export type Category = z.infer<typeof categorySchema>;

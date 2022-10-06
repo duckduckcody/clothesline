@@ -10,7 +10,7 @@
     "push": "npx ts-node ./scripts/push",
     "search": "npx ts-node ./scripts/search",
     "health": "curl http://localhost:8108/health",
-    "typesense": "sudo /usr/bin/./typesense-server --config=typesense/typesense.config.ini",
+    "start-typesense-server": "sudo /usr/bin/./typesense-server --config=typesense/typesense.config.ini",
     "test": "jest",
     "test:watch": "jest -o --watch"
   },

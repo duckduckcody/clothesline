@@ -39,13 +39,26 @@ export const CULTURE_KINGS_ALGOLIA_HEADERS = {
   ...HEADERS,
 };
 
+const makePrice = (price: string | number): number => {
+  if (typeof price === 'string') {
+    return parseInt(price);
+  }
+
+  return price;
+};
+
 const makeSizes = (sizes: Variant[]): Size[] =>
-  sizes.map((s) => ({
-    label: s.title,
-    inStock: s.availableForSale && s.inStock,
-    price: s.price,
-    oldPrice: s.compareAtPrice > 0 ? s.compareAtPrice : undefined,
-  }));
+  sizes.map((s) => {
+    const inStock = s.inStock ?? s.availableForSale;
+    const price = makePrice(s.price);
+
+    return {
+      label: s.title,
+      inStock,
+      price,
+      oldPrice: s.compareAtPrice > 0 ? s.compareAtPrice : undefined,
+    };
+  });
 
 export const cultureKingsConfig: Config = {
   name: 'Culture Kings',
@@ -96,6 +109,7 @@ export const cultureKingsConfig: Config = {
         });
       })
       .catch((e) => {
+        console.log(e);
         logBadResponse(e);
       });
 

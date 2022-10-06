@@ -46,8 +46,11 @@ export const makeCategories = (
           cats.push('t-shirts');
           break;
         case 'button ups':
+        case 'party shirt':
           cats.push('shirts');
           break;
+        case 'active bra':
+          cats.push('activewear');
         case 'bike shorts':
         case 'basketballshorts':
           cats.push('activewear', 'shorts');

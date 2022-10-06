@@ -1,6 +1,6 @@
 export interface Variant {
   availableForSale: boolean;
-  inStock: boolean;
+  inStock?: boolean;
   price: number;
   compareAtPrice: number;
   title: string;
@@ -13,7 +13,7 @@ export interface CultureKingsAlgoliaHits {
   handle: string;
   image: string;
   openstyleStyleCode: string;
-  gender: string;
+  gender: string[];
   description: string;
   images: string[];
   styleGroup: string;
