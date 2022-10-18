@@ -12,8 +12,8 @@ export const productSchema = z.object({
   link: z.string(),
   images: z.array(z.string()),
   sizes: z.array(sizeSchema),
-  gender: z.array(genderSchema),
-  category: z.array(categorySchema),
+  genders: z.array(genderSchema),
+  categories: z.array(categorySchema),
   website: z.string(websiteSchema),
 });
 

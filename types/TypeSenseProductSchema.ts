@@ -46,12 +46,12 @@ export const TypeSenseProductSchema: CollectionCreateSchema = {
       optional: true,
     },
     {
-      name: 'gender',
+      name: 'genders',
       type: 'string[]',
       facet: true,
     },
     {
-      name: 'category',
+      name: 'categories',
       type: 'string[]',
       facet: true,
     },

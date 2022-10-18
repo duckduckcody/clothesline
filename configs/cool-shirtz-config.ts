@@ -65,7 +65,7 @@ export const coolShirtzConfig: Config = {
   },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
-    const { gender, categories } = getCategoryAndGenderFromUrl(url);
+    const { genders, categories } = getCategoryAndGenderFromUrl(url);
 
     const $ = await urlToCheerio(url);
 
@@ -123,8 +123,8 @@ export const coolShirtzConfig: Config = {
       details,
       images,
       sizes,
-      gender,
-      category: makeCategories(categories),
+      genders,
+      categories: makeCategories(categories),
       website: coolShirtzConfig.name,
     });
 

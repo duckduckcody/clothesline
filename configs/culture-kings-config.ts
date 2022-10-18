@@ -96,8 +96,11 @@ export const cultureKingsConfig: Config = {
             details: product.description,
             sizes: makeSizes(product.variants),
             brand: product.vendor,
-            gender: makeGender(product.gender),
-            category: makeCategories(product.subCategoriesNormalised, product),
+            genders: makeGender(product.gender),
+            categories: makeCategories(
+              product.subCategoriesNormalised,
+              product
+            ),
             website: cultureKingsConfig.name,
           });
 
