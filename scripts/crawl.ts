@@ -1,32 +1,35 @@
-import Apify, { openDataset } from 'apify';
+import { BasicCrawler, BasicCrawlerOptions, CheerioCrawler } from 'crawlee';
 import { configs } from '../configs/scraper-config';
 import { Product } from '../types/Product';
-import { addRequests } from '../utils/add-requests/add-requests';
 
-const crawlerBaseConfig = {
-  maxRequestRetries: 1,
-  maxRequestsPerCrawl: 1000,
+const crawlerBaseConfig: Omit<BasicCrawlerOptions, 'requestHandler'> = {
   maxConcurrency: 50,
 };
 
-configs.map((config) => {
-  Apify.main(async () => {
-    const requestQueue = await Apify.openRequestQueue();
-    await addRequests(requestQueue, config.categoryUrls);
-
-    const crawler = new Apify.BasicCrawler({
+let dataset = [];
+configs.map(async (config) => {
+  let crawler = undefined;
+  if (config.type === 'cheerio') {
+    crawler = new CheerioCrawler({});
+  } else {
+    crawler = new BasicCrawler({
       ...crawlerBaseConfig,
       ...config.crawlerOptions,
-      requestQueue,
-      handleRequestFunction: async ({ request }) => {
-        if (config.enqueueLinks && config.shouldEnqueueLinks(request.url)) {
-          const shouldQueueNextPage = await config.enqueueLinks(
-            request.url,
-            requestQueue
-          );
+      requestHandler: async ({
+        request,
+        crawler,
+        enqueueLinks,
+        sendRequest,
+      }) => {
+        if (config.getEnqueueLinks && config.shouldEnqueueLinks(request.url)) {
+          const response = await sendRequest();
 
-          if (shouldQueueNextPage && config.getNextPageUrl) {
-            await requestQueue.addRequest({
+          const links = config.getEnqueueLinks(response.body);
+
+          const enqueued = await enqueueLinks({ urls: links });
+
+          if (enqueued.processedRequests.length > 0 && config.getNextPageUrl) {
+            await crawler.requestQueue?.addRequest({
               url: config.getNextPageUrl(request.url),
             });
           }
@@ -35,17 +38,15 @@ configs.map((config) => {
 
           data = await config.scrape(request.url);
 
+          // push if single product
           if (data && !Array.isArray(data)) {
-            const dataset = await openDataset();
-            await dataset.pushData(data);
-          } else if (!data && request.retryCount === 0) {
-            throw new Error(`No data found for ${request.url}, retrying...`);
+            dataset.push(data);
           }
 
+          // push data and enqueue next page if array
           if (Array.isArray(data)) {
             if (data.length !== 0) {
-              const dataset = await openDataset();
-              await dataset.pushData(data);
+              dataset.push(data);
 
               // max products returned, add next page to queue
               if (
@@ -53,7 +54,7 @@ configs.map((config) => {
                 data.length >=
                   config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
               ) {
-                await requestQueue.addRequest({
+                await crawler.requestQueue?.addRequest({
                   url: config.getNextPageUrl(request.url),
                 });
               }
@@ -63,16 +64,16 @@ configs.map((config) => {
           }
         }
       },
-      handleFailedRequestFunction: async ({ request }) => {
+      failedRequestHandler: async ({ request }) => {
         console.log(`Request ${request.url} failed.`);
       },
     });
+  }
 
+  if (crawler) {
+    crawler.addRequests(config.categoryUrls);
     await crawler.run();
+  }
 
-    const dataSet = await openDataset();
-    const data = await dataSet.map((product) => product);
-
-    console.log('products scraped', data.length);
-  });
+  console.log(`scraped ${dataset.length} products`);
 });

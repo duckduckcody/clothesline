@@ -1,9 +1,8 @@
-import { utils } from 'apify';
+import { load } from 'cheerio';
 import { CategoryMap } from '../types/CategoryMap';
 import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
-import { addCategoryGenderToRequest } from '../utils/add-category-gender-to-request/add-category-gender-to-request';
 import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
 import { logBadProduct } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
@@ -51,19 +50,12 @@ export const coolShirtzConfig: Config = {
   },
   categoryUrls: [...categoryMap.keys()],
   shouldEnqueueLinks: (url) => !url.includes('products'),
-  enqueueLinks: async (url, requestQueue) => {
-    const $ = await urlToCheerio(url);
-    const res = await utils.enqueueLinks({
-      $,
-      requestQueue,
-      limit: coolShirtzConfig.maximumProductsOnPage,
-      selector: 'a.grid-view-item__link',
-      baseUrl: coolShirtzConfig.baseUrl,
-      transformRequestFunction: (request) =>
-        addCategoryGenderToRequest(url, categoryMap, request),
-    });
+  getEnqueueLinks: (html) => {
+    const $ = load(html);
 
-    return Boolean(res.length);
+    const links = $('a.grid-view-item__link');
+
+    return [];
   },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
@@ -82,6 +74,7 @@ export const coolShirtzConfig: Config = {
     const name = $(product.find('h1.product-single__title').first()).text();
 
     const images: string[] = [];
+    // @ts-ignore
     product.find('a.product-single__thumbnail').each((i, el) => {
       const image = protocolAbsolute($(el).attr('data-imagesrc'));
       if (image) {
@@ -96,6 +89,7 @@ export const coolShirtzConfig: Config = {
     const price = stringToPrice($(moneyElements[0]).text());
 
     const sizes: Size[] = [];
+    // @ts-ignore
     $(product.find('.swatch-element')).each((i, s) => {
       const sizeParse = sizeSchema.safeParse({
         label: $(s).text(),
@@ -115,6 +109,7 @@ export const coolShirtzConfig: Config = {
 
     // clean up details
     product.find('div#product-description br').replaceWith(' ');
+    // @ts-ignore
     product.find('div#product-description li').replaceWith((i, text) => {
       return ` ${$(text).text()} `;
     });
