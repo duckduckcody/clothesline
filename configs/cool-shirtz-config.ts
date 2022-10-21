@@ -4,7 +4,6 @@ import { Config } from '../types/Config';
 import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
 import { addCategoryGenderToRequest } from '../utils/add-category-gender-to-request/add-category-gender-to-request';
-import { getCategoryAndGenderFromUrl } from '../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
 import { logBadProduct } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
@@ -47,6 +46,9 @@ export const coolShirtzConfig: Config = {
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
+  crawlerOptions: {
+    maxConcurrency: 1,
+  },
   categoryUrls: [...categoryMap.keys()],
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueLinks: async (url, requestQueue) => {
@@ -65,7 +67,13 @@ export const coolShirtzConfig: Config = {
   },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async (url) => {
-    const { genders, categories } = getCategoryAndGenderFromUrl(url);
+    const splitUrl = url.split('/');
+    const categories = [splitUrl[splitUrl.indexOf('collections') + 1]];
+
+    let genders = ['Mens', 'Womens'];
+    if (categories?.[0] === 'crop-tops') {
+      genders = ['Womens'];
+    }
 
     const $ = await urlToCheerio(url);
 

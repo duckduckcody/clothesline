@@ -1,5 +1,5 @@
 import { Category, categorySchema } from '../types/Category';
-import { logBadProduct } from './logging';
+import { logBadCategory } from './logging';
 
 export const makeCategories = (
   c: string[],
@@ -8,7 +8,7 @@ export const makeCategories = (
   const cats: Category[] = [];
 
   c.forEach((c) => {
-    const category = c.toLowerCase();
+    const category = c.toLowerCase().replaceAll('-', ' ');
     const categoryParse = categorySchema.safeParse(category);
 
     if (categoryParse.success) {
@@ -41,11 +41,16 @@ export const makeCategories = (
           cats.push('shorts');
           break;
         case 'tees':
+        case 't shirts':
         case 'short sleeve tees':
-        case 'long sleeve tees':
           cats.push('t-shirts');
           break;
+        case 'long sleeve tees':
+        case 'longsleeve':
+          cats.push('long sleeve tees');
+          break;
         case 'button ups':
+        case 'button up shirts':
         case 'party shirt':
           cats.push('shirts');
           break;
@@ -64,6 +69,7 @@ export const makeCategories = (
         case 'crop tee':
         case 'crops':
         case 'crop singlet':
+        case 'crop tops':
           cats.push('crop-tops');
           break;
         case 'misc tops':
@@ -77,11 +83,7 @@ export const makeCategories = (
           cats.push('singlets');
           break;
         default:
-          logBadProduct({
-            message: 'Error making a category',
-            category,
-            loggingData,
-          });
+          logBadCategory(category, loggingData);
       }
     }
   });

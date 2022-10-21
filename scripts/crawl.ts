@@ -1,12 +1,11 @@
 import Apify, { openDataset } from 'apify';
-import { configs } from '../configs';
+import { configs } from '../configs/scraper-config';
 import { Product } from '../types/Product';
 import { addRequests } from '../utils/add-requests/add-requests';
 
 const crawlerBaseConfig = {
   maxRequestRetries: 1,
   maxRequestsPerCrawl: 1000,
-  minConcurrency: 50,
   maxConcurrency: 50,
 };
 

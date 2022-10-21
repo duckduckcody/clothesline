@@ -10,10 +10,10 @@ export const productSchema = z.object({
   details: z.string(),
   sizing: z.string().optional(),
   link: z.string(),
-  images: z.array(z.string()),
+  images: z.array(z.string()).nonempty(),
   sizes: z.array(sizeSchema),
-  genders: z.array(genderSchema),
-  categories: z.array(categorySchema),
+  genders: z.array(genderSchema).nonempty(),
+  categories: z.array(categorySchema).nonempty(),
   website: z.string(websiteSchema),
 });
 
