@@ -1,0 +1,53 @@
+import { CategoryMap } from '../types/CategoryMap';
+import { CheerioCrawlerConfig } from '../types/CrawlerConfig';
+import { productSchema } from '../types/Product';
+import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
+import { logBadProduct } from '../utils/logging';
+import { makeCategories } from '../utils/makeCategories';
+
+const categoryMap: CategoryMap = new Map();
+categoryMap.set('https://replaceme/collections/t-shirts', {
+  category: ['t-shirts'],
+  gender: ['Mens', 'Womens'],
+});
+
+export const replaceMe: CheerioCrawlerConfig = {
+  type: 'cheerio',
+  name: '',
+  baseUrl: '',
+  maximumProductsOnPage: 0,
+  options: {
+    maxConcurrency: 1,
+  },
+  categoryUrls: [...categoryMap.keys()],
+  shouldEnqueueLinks: (url) => !url.includes('products'),
+  enqueueSelector: 'a.grid-view-item__link',
+  getNextPageUrl: (url) => incrementPageParam(url, 'page'),
+  scrape: async ($, url) => {
+    const name = '';
+    const details = '';
+    const images = [''];
+    const sizes = [''];
+    const genders = [''];
+    const categories = [''];
+
+    const parseRes = productSchema.safeParse({
+      link: url,
+      name,
+      brand: replaceMe.name,
+      details,
+      images,
+      sizes,
+      genders,
+      categories: makeCategories(categories),
+      website: replaceMe.name,
+    });
+
+    if (parseRes.success) {
+      return parseRes.data;
+    } else {
+      await logBadProduct(parseRes, { name, url });
+      return undefined;
+    }
+  },
+};

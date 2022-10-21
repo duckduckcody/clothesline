@@ -49,6 +49,7 @@ export const coolShirtzConfig: CheerioCrawlerConfig = {
   },
   categoryUrls: [...categoryMap.keys()],
   shouldEnqueueLinks: (url) => !url.includes('products'),
+  enqueueSelector: 'a.grid-view-item__link',
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
   scrape: async ($, url) => {
     const splitUrl = url.split('/');

@@ -1,21 +1,21 @@
-import { RequestOptions } from 'apify';
+import { RequestOptions } from 'crawlee';
 import { CategoryMap } from '../../types/CategoryMap';
 
 /**
  * adds category and gender from CategoryMap (using originalUrl as the key) to params of a request.url
- * @param originalUrl
- * @param categoryMap
  * @param request
+ * @param categoryMap
  * @returns RequestOptions
  */
 export const addCategoryGenderToRequest = (
-  originalUrl: string,
-  categoryMap: CategoryMap,
-  request: RequestOptions
+  request: RequestOptions,
+  categoryMap: CategoryMap
 ) => {
-  const url = new URL(originalUrl);
+  const url = new URL(request.url);
 
-  const key = `${url.protocol}//${url.host}`;
+  const key = request.url.split('?')[0];
+
+  console.log('in here', key);
 
   const category = categoryMap.get(key)?.category;
   const gender = categoryMap.get(key)?.gender;
@@ -31,5 +31,8 @@ export const addCategoryGenderToRequest = (
   request.url = `${request.url}${
     url.searchParams.toString() ? `?${url.searchParams.toString()}` : ''
   }`;
+
+  console.log('request.url', request.url);
+
   return request;
 };

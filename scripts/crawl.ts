@@ -1,4 +1,10 @@
-import { BasicCrawler, CheerioCrawler, Dataset, RequestQueue } from 'crawlee';
+import {
+  BasicCrawler,
+  CheerioCrawler,
+  Dataset,
+  RequestQueue,
+  utils,
+} from 'crawlee';
 import { crawlerConfigs } from '../configs/crawler-configs';
 import { DatasetName } from '../types/DatasetName';
 import { Product } from '../types/Product';
@@ -13,10 +19,12 @@ const progress = crawlerConfigs.map(async (config) => {
       ...config.options,
       requestQueue,
       requestHandler: async ({ request, enqueueLinks, $ }) => {
+        utils.sleep(1000);
+        const test = () => request;
         // url is a list, enqueue all products on page and next page
         if (config.shouldEnqueueLinks(request.url)) {
           const enqueued = await enqueueLinks({
-            selector: 'a.grid-view-item__link',
+            selector: config.enqueueSelector,
             limit: config.maximumProductsOnPage,
             baseUrl: config.baseUrl,
             requestQueue,

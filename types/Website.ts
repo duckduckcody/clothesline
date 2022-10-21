@@ -5,6 +5,7 @@ export const websiteSchema = z.enum([
   'Asos',
   'Culture Kings',
   'Cool Shirtz',
+  'Edge Clothing',
 ]);
 
 export type Website = z.infer<typeof websiteSchema>;

@@ -23,6 +23,7 @@ export interface CheerioCrawlerConfig {
   maximumProductsOnPage: number;
   fuckyTolerance?: number;
   shouldEnqueueLinks: (url: string) => boolean;
+  enqueueSelector: string;
   categoryUrls: string[];
   scrape: ($: CheerioAPI, url: string) => Promise<Product | undefined>;
   getNextPageUrl: (url: string) => string;
