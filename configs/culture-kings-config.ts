@@ -88,6 +88,11 @@ export const cultureKingsConfig: BasicCrawlerConfig = {
       })
       .then((res) => {
         res.hits.forEach((product) => {
+          let category = product.subCategoriesNormalised;
+          if (!category || category.length === 0) {
+            category = [product.category];
+          }
+
           const productParse = productSchema.safeParse({
             name: product.title,
             link: `${CULTURE_KINGS_URL}/products/${product.handle}?productId=${product.styleGroup}&gender=${product.gender}`,
@@ -96,10 +101,7 @@ export const cultureKingsConfig: BasicCrawlerConfig = {
             sizes: makeSizes(product.variants),
             brand: product.vendor,
             genders: makeGender(product.gender),
-            categories: makeCategories(
-              product.subCategoriesNormalised,
-              product
-            ),
+            categories: makeCategories(category),
             website: cultureKingsConfig.name,
           });
 

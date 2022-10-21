@@ -21,4 +21,5 @@ export interface CultureKingsAlgoliaHits {
   vendor: string;
   variants: Variant[];
   subCategoriesNormalised: string[];
+  category: string;
 }

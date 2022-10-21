@@ -1,28 +1,32 @@
-import { BasicCrawler, CheerioCrawler, Dataset } from 'crawlee';
+import { BasicCrawler, CheerioCrawler, Dataset, RequestQueue } from 'crawlee';
 import { crawlerConfigs } from '../configs/crawler-configs';
 import { DatasetName } from '../types/DatasetName';
 import { Product } from '../types/Product';
 
-let products: Product[] = [];
 const progress = crawlerConfigs.map(async (config) => {
   let crawler = undefined;
+  let products: Product[] = [];
+  const requestQueue = await RequestQueue.open(config.baseUrl);
+
   if (config.type === 'cheerio') {
     crawler = new CheerioCrawler({
       ...config.options,
-      requestHandler: async ({ request, enqueueLinks, crawler, $ }) => {
+      requestQueue,
+      requestHandler: async ({ request, enqueueLinks, $ }) => {
         // url is a list, enqueue all products on page and next page
         if (config.shouldEnqueueLinks(request.url)) {
           const enqueued = await enqueueLinks({
             selector: 'a.grid-view-item__link',
             limit: config.maximumProductsOnPage,
             baseUrl: config.baseUrl,
+            requestQueue,
           });
 
           console.log('enqueued products on page', request.url);
 
           // add next page if at least one product found
           if (enqueued.processedRequests.length > 0) {
-            await crawler.requestQueue?.addRequest({
+            await requestQueue.addRequest({
               url: config.getNextPageUrl(request.url),
             });
           }
@@ -39,7 +43,8 @@ const progress = crawlerConfigs.map(async (config) => {
   } else if (config.type === 'basic') {
     crawler = new BasicCrawler({
       ...config.options,
-      requestHandler: async ({ request, crawler }) => {
+      requestQueue,
+      requestHandler: async ({ request }) => {
         let data: Product[] | undefined = [];
 
         data = await config.scrape(request.url);
@@ -53,7 +58,7 @@ const progress = crawlerConfigs.map(async (config) => {
             config.getNextPageUrl &&
             data.length >= config.maximumProductsOnPage
           ) {
-            await crawler.requestQueue?.addRequest({
+            await requestQueue.addRequest({
               url: config.getNextPageUrl(request.url),
             });
           }
@@ -66,7 +71,7 @@ const progress = crawlerConfigs.map(async (config) => {
   }
 
   if (crawler) {
-    crawler.addRequests(config.categoryUrls);
+    requestQueue.addRequests(config.categoryUrls.map((url) => ({ url })));
     await crawler.run();
 
     const dataset = await Dataset.open(DatasetName.products);
