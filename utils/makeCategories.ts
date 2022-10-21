@@ -83,7 +83,7 @@ export const makeCategories = (
           cats.push('singlets');
           break;
         default:
-          logBadCategory(category, loggingData);
+          logBadCategory(category);
       }
     }
   });

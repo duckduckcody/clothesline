@@ -1,6 +1,5 @@
-import { utils } from 'apify';
 import { Category } from '../../types/Category';
-import { Config } from '../../types/Config';
+import { Config } from '../../types/CrawlerConfig';
 import { Gender } from '../../types/Gender';
 import { productSchema } from '../../types/Product';
 import { addCategoryGenderToRequest } from '../../utils/add-category-gender-to-request/add-category-gender-to-request';

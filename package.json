@@ -4,8 +4,7 @@
   "description": "clothes scraper for stylelist",
   "main": "crawl.ts",
   "scripts": {
-    "scrape": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
-    "s": "rm -rf apify_storage && npx ts-node ./scripts/crawl",
+    "crawl": "rm -rf storage && npx ts-node ./scripts/crawl",
     "makeCollections": "npx ts-node ./scripts/makeCollections",
     "push": "npx ts-node ./scripts/push",
     "search": "npx ts-node ./scripts/search",
@@ -27,7 +26,6 @@
   "dependencies": {
     "@babel/runtime": "^7.18.3",
     "algoliasearch": "^4.13.1",
-    "apify": "^2.3.2",
     "cheerio": "1.0.0-rc.12",
     "crawlee": "^3.1.0",
     "striptags": "^3.2.0",

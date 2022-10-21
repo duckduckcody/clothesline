@@ -1,6 +1,6 @@
 import algoliasearch from 'algoliasearch';
-import { utils } from 'apify';
-import { Config } from '../types/Config';
+import { BasicCrawlerConfig } from '../types/CrawlerConfig';
+
 import {
   CultureKingsAlgoliaHits,
   Variant,
@@ -60,7 +60,8 @@ const makeSizes = (sizes: Variant[]): Size[] =>
     };
   });
 
-export const cultureKingsConfig: Config = {
+export const cultureKingsConfig: BasicCrawlerConfig = {
+  type: 'basic',
   name: 'Culture Kings',
   baseUrl: CULTURE_KINGS_URL,
   maximumProductsOnPage: 72,
@@ -71,8 +72,6 @@ export const cultureKingsConfig: Config = {
     'https://womens-bottoms',
   ],
   scrape: async (url: string) => {
-    await utils.sleep(1010);
-
     const collectedProducts: Product[] = [];
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);
@@ -118,7 +117,6 @@ export const cultureKingsConfig: Config = {
 
     return collectedProducts;
   },
-  shouldEnqueueLinks: () => false,
   getNextPageUrl: (url: string) => {
     const splitUrl = url.split('?');
     const params = new URLSearchParams(splitUrl[1]);

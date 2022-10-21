@@ -1,9 +1,10 @@
-import { openDataset } from 'apify';
+import { Dataset } from 'crawlee';
+import { DatasetName } from '../types/DatasetName';
 import { productCollectionName } from '../types/TypeSenseProductSchema';
 import { typeSenseClient } from '../typesense/typeSenseClient';
 
 export const push = async () => {
-  const dataSet = await openDataset();
+  const dataSet = await Dataset.open(DatasetName.products);
 
   // simplify sizes until typesense can index object arrays
   const data = await dataSet.map((product) => {

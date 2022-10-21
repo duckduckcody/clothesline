@@ -1,4 +1,3 @@
-import { utils } from 'apify';
 import { logBadRequest } from './logging';
 
 export const urlToJson = async (url: string) => {

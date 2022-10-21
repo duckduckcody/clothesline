@@ -1,66 +1,61 @@
-import { BasicCrawler, BasicCrawlerOptions, CheerioCrawler } from 'crawlee';
-import { configs } from '../configs/scraper-config';
+import { BasicCrawler, CheerioCrawler, Dataset } from 'crawlee';
+import { crawlerConfigs } from '../configs/crawler-configs';
+import { DatasetName } from '../types/DatasetName';
 import { Product } from '../types/Product';
 
-const crawlerBaseConfig: Omit<BasicCrawlerOptions, 'requestHandler'> = {
-  maxConcurrency: 50,
-};
-
-let dataset = [];
-configs.map(async (config) => {
+let products: Product[] = [];
+const progress = crawlerConfigs.map(async (config) => {
   let crawler = undefined;
   if (config.type === 'cheerio') {
-    crawler = new CheerioCrawler({});
-  } else {
-    crawler = new BasicCrawler({
-      ...crawlerBaseConfig,
-      ...config.crawlerOptions,
-      requestHandler: async ({
-        request,
-        crawler,
-        enqueueLinks,
-        sendRequest,
-      }) => {
-        if (config.getEnqueueLinks && config.shouldEnqueueLinks(request.url)) {
-          const response = await sendRequest();
+    crawler = new CheerioCrawler({
+      ...config.options,
+      requestHandler: async ({ request, enqueueLinks, crawler, $ }) => {
+        // url is a list, enqueue all products on page and next page
+        if (config.shouldEnqueueLinks(request.url)) {
+          const enqueued = await enqueueLinks({
+            selector: 'a.grid-view-item__link',
+            limit: config.maximumProductsOnPage,
+            baseUrl: config.baseUrl,
+          });
 
-          const links = config.getEnqueueLinks(response.body);
+          console.log('enqueued products on page', request.url);
 
-          const enqueued = await enqueueLinks({ urls: links });
-
-          if (enqueued.processedRequests.length > 0 && config.getNextPageUrl) {
+          // add next page if at least one product found
+          if (enqueued.processedRequests.length > 0) {
             await crawler.requestQueue?.addRequest({
               url: config.getNextPageUrl(request.url),
             });
           }
         } else {
-          let data: Product[] | Product | undefined = [];
-
-          data = await config.scrape(request.url);
-
-          // push if single product
-          if (data && !Array.isArray(data)) {
-            dataset.push(data);
+          // its a product details page, scrape it
+          let data = await config.scrape($, request.url);
+          if (data) {
+            products.push(data);
+            console.log('scraped product', data.name);
           }
+        }
+      },
+    });
+  } else if (config.type === 'basic') {
+    crawler = new BasicCrawler({
+      ...config.options,
+      requestHandler: async ({ request, crawler }) => {
+        let data: Product[] | undefined = [];
 
-          // push data and enqueue next page if array
-          if (Array.isArray(data)) {
-            if (data.length !== 0) {
-              dataset.push(data);
+        data = await config.scrape(request.url);
 
-              // max products returned, add next page to queue
-              if (
-                config.getNextPageUrl &&
-                data.length >=
-                  config.maximumProductsOnPage - (config.fuckyTolerance ?? 0)
-              ) {
-                await crawler.requestQueue?.addRequest({
-                  url: config.getNextPageUrl(request.url),
-                });
-              }
-            } else if (data.length === 0 && request.retryCount === 0) {
-              throw new Error(`No data found for ${request.url}, retrying...`);
-            }
+        // push data and enqueue next page if array
+        if (data && data.length !== 0) {
+          products = products.concat(data);
+
+          // max products returned, add next page to queue
+          if (
+            config.getNextPageUrl &&
+            data.length >= config.maximumProductsOnPage
+          ) {
+            await crawler.requestQueue?.addRequest({
+              url: config.getNextPageUrl(request.url),
+            });
           }
         }
       },
@@ -73,7 +68,15 @@ configs.map(async (config) => {
   if (crawler) {
     crawler.addRequests(config.categoryUrls);
     await crawler.run();
-  }
 
-  console.log(`scraped ${dataset.length} products`);
+    const dataset = await Dataset.open(DatasetName.products);
+    await dataset.pushData(products);
+  }
+});
+
+Promise.all(progress).then(async () => {
+  const dataset = await Dataset.open(DatasetName.products);
+  console.log(
+    `scraped ${await dataset.reduce((prev, c) => (prev += 1), 0)} products`
+  );
 });

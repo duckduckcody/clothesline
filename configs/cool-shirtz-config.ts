@@ -1,6 +1,5 @@
-import { load } from 'cheerio';
 import { CategoryMap } from '../types/CategoryMap';
-import { Config } from '../types/Config';
+import { CheerioCrawlerConfig } from '../types/CrawlerConfig';
 import { productSchema } from '../types/Product';
 import { Size, sizeSchema } from '../types/Size';
 import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
@@ -8,7 +7,6 @@ import { logBadProduct } from '../utils/logging';
 import { makeCategories } from '../utils/makeCategories';
 import { protocolAbsolute } from '../utils/protocol-absolute/protocol-absolute';
 import { stringToPrice } from '../utils/stringToPrice';
-import { urlToCheerio } from '../utils/urlToCheerio';
 
 const categoryMap: CategoryMap = new Map();
 categoryMap
@@ -41,24 +39,18 @@ categoryMap
     gender: ['Mens', 'Womens'],
   });
 
-export const coolShirtzConfig: Config = {
+export const coolShirtzConfig: CheerioCrawlerConfig = {
+  type: 'cheerio',
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
   maximumProductsOnPage: 15,
-  crawlerOptions: {
+  options: {
     maxConcurrency: 1,
   },
   categoryUrls: [...categoryMap.keys()],
   shouldEnqueueLinks: (url) => !url.includes('products'),
-  getEnqueueLinks: (html) => {
-    const $ = load(html);
-
-    const links = $('a.grid-view-item__link');
-
-    return [];
-  },
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
-  scrape: async (url) => {
+  scrape: async ($, url) => {
     const splitUrl = url.split('/');
     const categories = [splitUrl[splitUrl.indexOf('collections') + 1]];
 
@@ -66,8 +58,6 @@ export const coolShirtzConfig: Config = {
     if (categories?.[0] === 'crop-tops') {
       genders = ['Womens'];
     }
-
-    const $ = await urlToCheerio(url);
 
     const product = $('div.product-single');
 
