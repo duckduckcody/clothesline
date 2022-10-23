@@ -21,7 +21,20 @@ export const edgeClothingConfig: CheerioCrawlerConfig = {
   categoryUrls: [...EdgeClothingCategoryMap.keys()],
 
   shouldEnqueueLinks: (url) => !url.includes('products'),
-  enqueueSelector: 'a.product-thumbnail__title',
+  getEnqueueUrls: ($) => {
+    let urls: string[] = [];
+    const wrapper = $('div.collection-matrix__wrapper');
+
+    wrapper.find('a.product-thumbnail__title').each((i, el) => {
+      const url = `${edgeClothingConfig.baseUrl}${$(el).attr('href')}`;
+      if (url && $(el).attr('href') && $(el).attr('href') !== '') {
+        urls.push(url);
+      }
+    });
+
+    return urls;
+  },
+
   transformRequestFunction: (request, originalUrl) => {
     request = addCategoryGenderToRequest(
       request,

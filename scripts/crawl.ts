@@ -2,6 +2,8 @@ import {
   BasicCrawler,
   CheerioCrawler,
   Dataset,
+  EnqueueLinksOptions,
+  KeyValueStore,
   RequestQueue,
   utils,
 } from 'crawlee';
@@ -22,7 +24,7 @@ const progress = crawlerConfigs.map(async (config) => {
         utils.sleep(1000);
         // url is a list, enqueue all products on page and next page
         if (config.shouldEnqueueLinks(request.url)) {
-          const enqueued = await enqueueLinks({
+          const enqueueConfig: EnqueueLinksOptions = {
             selector: config.enqueueSelector,
             limit: config.maximumProductsOnPage,
             baseUrl: config.baseUrl,
@@ -37,11 +39,19 @@ const progress = crawlerConfigs.map(async (config) => {
 
               return enqueuedRequest;
             },
-          });
+          };
+
+          if (config.getEnqueueUrls) {
+            enqueueConfig.urls = config.getEnqueueUrls($);
+          } else if (config.enqueueSelector) {
+            enqueueConfig.selector = config.enqueueSelector;
+          }
+
+          const enqueued = await enqueueLinks(enqueueConfig);
 
           console.log('enqueued products on page', request.url);
 
-          // add next page if at least one product found
+          // add next page if minimum amount of products are found
           if (enqueued.processedRequests.length > 0) {
             await requestQueue.addRequest({
               url: config.getNextPageUrl(request.url),
@@ -101,4 +111,37 @@ Promise.all(progress).then(async () => {
   console.log(
     `scraped ${await dataset.reduce((prev, c) => (prev += 1), 0)} products`
   );
+
+  const badCategories = await KeyValueStore.getValue(DatasetName.badCategory);
+  if (badCategories) {
+    console.log(`bad categories found ${badCategories}`);
+  }
+
+  const badProduct = await Dataset.open(DatasetName.badProduct);
+  await badProduct.getInfo().then((i) => {
+    if (i?.itemCount && i?.itemCount > 0) {
+      console.log(`${i?.itemCount} bad product(s)`);
+    }
+  });
+
+  const badRequest = await Dataset.open(DatasetName.badRequest);
+  await badRequest.getInfo().then((i) => {
+    if (i?.itemCount && i?.itemCount > 0) {
+      console.log(`${i?.itemCount} bad request(s)`);
+    }
+  });
+
+  const badResponse = await Dataset.open(DatasetName.badResponse);
+  await badResponse.getInfo().then((i) => {
+    if (i?.itemCount && i?.itemCount > 0) {
+      console.log(`${i?.itemCount} bad response(s)`);
+    }
+  });
+
+  const badEnqueue = await Dataset.open(DatasetName.badEnqueue);
+  await badEnqueue.getInfo().then((i) => {
+    if (i?.itemCount && i?.itemCount > 0) {
+      console.log(`${i?.itemCount} bad enqueue(s)`);
+    }
+  });
 });

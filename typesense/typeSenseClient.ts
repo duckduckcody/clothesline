@@ -12,7 +12,10 @@ const typeSenseClientConfigSchema = z.object({
 
 export const makeTypeSenseClient = (production: boolean = false) => {
   if (production) {
-    const configFile = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+    const configFile = ini.parse(
+      fs.readFileSync('./typesense/typesense-client.config.ini', 'utf-8')
+    );
+
     const config = typeSenseClientConfigSchema.safeParse(configFile);
 
     if (config.success) {
@@ -25,9 +28,10 @@ export const makeTypeSenseClient = (production: boolean = false) => {
           },
         ],
         apiKey: config.data.adminKey,
-        connectionTimeoutSeconds: 2,
+        connectionTimeoutSeconds: 30,
       });
     } else {
+      console.log('config.error', config.error);
       throw new Error('bad production typesense config');
     }
   } else {
@@ -40,7 +44,7 @@ export const makeTypeSenseClient = (production: boolean = false) => {
         },
       ],
       apiKey: 'xyz',
-      connectionTimeoutSeconds: 2,
+      connectionTimeoutSeconds: 30,
     });
   }
 };
