@@ -1,8 +1,9 @@
 import { CrawlerConfig } from '../types/CrawlerConfig';
-import { edgeClothingConfig } from './edge-clothing-config';
+import { universalConfig } from './universal/universal-config';
 
 export const crawlerConfigs: CrawlerConfig[] = [
   // coolShirtzConfig,
   // cultureKingsConfig,
-  edgeClothingConfig,
+  // edgeClothingConfig,
+  universalConfig,
 ];

@@ -11,6 +11,7 @@ specifiers:
   babel-jest: ^28.1.0
   cheerio: 1.0.0-rc.12
   crawlee: ^3.1.0
+  got-scraping: ^3.2.11
   jest: ^28.1.0
   striptags: ^3.2.0
   ts-jest: ^28.0.2
@@ -25,6 +26,7 @@ dependencies:
   algoliasearch: 4.14.2
   cheerio: 1.0.0-rc.12
   crawlee: 3.1.0
+  got-scraping: 3.2.11
   striptags: 3.2.0
   typesense: 1.4.1_@babel+runtime@7.19.4
   zod: 3.19.1

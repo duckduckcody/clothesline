@@ -1,125 +1,37 @@
-import { Category } from '../../types/Category';
-import { Config } from '../../types/CrawlerConfig';
-import { Gender } from '../../types/Gender';
-import { productSchema } from '../../types/Product';
+import { CheerioCrawlerConfig } from '../../types/CrawlerConfig';
+import { Product, productSchema } from '../../types/Product';
 import { addCategoryGenderToRequest } from '../../utils/add-category-gender-to-request/add-category-gender-to-request';
 import { getCategoryAndGenderFromUrl } from '../../utils/getCategoryAndGenderFromUrl';
 import { incrementPageParam } from '../../utils/increment-page-param/increment-page-param';
 import { logBadProduct } from '../../utils/logging';
 import { makeCategories } from '../../utils/makeCategories';
 import { stringToPrice } from '../../utils/stringToPrice';
-import { urlToCheerio } from '../../utils/urlToCheerio';
+import { universalCategoryMap } from './category-map';
 import { getSizes } from './getSizes';
 
-const categoryMap = new Map<
-  string,
-  { category: Category[]; gender: Gender[] }
->();
-
-categoryMap
-  .set('https://www.universalstore.com/mens/t-shirts.html', {
-    category: ['t-shirts'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/jeans.html', {
-    category: ['jeans'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/hoodies-sweaters.html', {
-    category: ['hoodies'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/jackets-coats.html', {
-    category: ['jackets'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/overshirts.html', {
-    category: ['jackets'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/shirts-polos.html', {
-    category: ['t-shirts'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/pants.html', {
-    category: ['pants'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/shorts.html', {
-    category: ['shorts'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/muscle-shirts-singlets.html', {
-    category: ['singlets'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/mens/underwear.html', {
-    category: ['underwear'],
-    gender: ['Mens'],
-  })
-  .set('https://www.universalstore.com/womens/tops.html', {
-    category: ['tops'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/overshirts.html', {
-    category: ['jackets'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/tshirts-tanktops.html', {
-    category: ['t-shirts'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/jeans.html', {
-    category: ['jeans'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/dresses.html', {
-    category: ['dresses'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/sets-coordinates.html', {
-    category: ['co-ords'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/jumpers-knits.html', {
-    category: ['jumpers'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/coats-jackets.html', {
-    category: ['jackets'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/pants.html', {
-    category: ['pants'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/skirts.html', {
-    category: ['skirts'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/shorts.html', {
-    category: ['shorts'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/underwear.html', {
-    category: ['underwear'],
-    gender: ['Womens'],
-  })
-  .set('https://www.universalstore.com/womens/swimwear.html', {
-    category: ['swimwear'],
-    gender: ['Womens'],
-  });
-
-export const universalConfig: Config = {
+export const universalConfig: CheerioCrawlerConfig = {
+  type: 'cheerio',
   name: 'Universal',
   baseUrl: 'https://www.universalstore.com',
+  categoryUrls: [...universalCategoryMap.keys()],
+
+  getNextPageUrl: (url: string) => incrementPageParam(url, 'p'),
   maximumProductsOnPage: 60,
   fuckyTolerance: 5,
-  categoryUrls: [...categoryMap.keys()],
-  scrape: async (url: string) => {
-    const { gender, categories } = getCategoryAndGenderFromUrl(url);
 
-    const $ = await urlToCheerio(url);
+  shouldEnqueueLinks: (url: string) => url.includes('clothing'),
+  enqueueSelector: 'a.product-item-info',
+  transformRequestFunction: (request, originalUrl) => {
+    request = addCategoryGenderToRequest(
+      request,
+      originalUrl,
+      universalCategoryMap
+    );
+    return request;
+  },
+
+  scrape: async ($, url, sendRequest) => {
+    const { genders, categories } = getCategoryAndGenderFromUrl(url);
 
     const product = $('#maincontent');
 
@@ -151,7 +63,7 @@ export const universalConfig: Config = {
       .text()
       .trim();
 
-    const sizes = await getSizes($, price, oldPrice);
+    const sizes = await getSizes($, price, oldPrice, sendRequest);
 
     const parseRes = productSchema.safeParse({
       name,
@@ -160,11 +72,11 @@ export const universalConfig: Config = {
       details: '',
       images,
       sizing,
-      gender,
+      genders,
       sizes,
-      category: makeCategories(categories),
+      categories: makeCategories(categories),
       website: universalConfig.name,
-    });
+    } as Product);
 
     if (parseRes.success) {
       return parseRes.data;
@@ -172,21 +84,4 @@ export const universalConfig: Config = {
       logBadProduct(parseRes, { url });
     }
   },
-  shouldEnqueueLinks: (url: string) => {
-    return url.includes('mens') || url.includes('womens');
-  },
-  enqueueLinks: async (url, requestQueue) => {
-    const $ = await urlToCheerio(url);
-    const res = await utils.enqueueLinks({
-      $,
-      requestQueue,
-      limit: universalConfig.maximumProductsOnPage,
-      selector: 'a.product-item-info',
-      baseUrl: universalConfig.baseUrl,
-      transformRequestFunction: (request) =>
-        addCategoryGenderToRequest(url, categoryMap, request),
-    });
-    return Boolean(res.length);
-  },
-  getNextPageUrl: (url: string) => incrementPageParam(url, 'p'),
 };

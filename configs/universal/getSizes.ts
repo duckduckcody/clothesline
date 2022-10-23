@@ -1,8 +1,8 @@
 import { CheerioAPI } from 'cheerio/lib/load';
 import { z } from 'zod';
+import { SendRequest } from '../../types/SendRequest';
 import { Size, sizeSchema } from '../../types/Size';
 import { logBadProduct } from '../../utils/logging';
-import { urlToJson } from '../../utils/urlToJson';
 
 export type SKU = { label: string; sku: string };
 
@@ -72,13 +72,18 @@ export const makeSizes = (
 export const getSizes = async (
   $: CheerioAPI,
   price: number | undefined,
-  oldPrice: number | undefined
+  oldPrice: number | undefined,
+  sendRequest: SendRequest
 ) => {
   const pageSkus = getPageSkus($);
 
-  const stockQuantityRes = await urlToJson(makeQuantityUrl(pageSkus));
+  const stockQuantityRes = await sendRequest({
+    url: makeQuantityUrl(pageSkus),
+  });
+  const stockQuantityJson = JSON.parse(stockQuantityRes.body);
 
-  const stockParse = stockQuantityUrlResponseSchema.safeParse(stockQuantityRes);
+  const stockParse =
+    stockQuantityUrlResponseSchema.safeParse(stockQuantityJson);
 
   if (stockParse.success) {
     return makeSizes(stockParse.data, pageSkus, price, oldPrice);

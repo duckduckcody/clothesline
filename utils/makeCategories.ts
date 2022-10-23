@@ -82,6 +82,9 @@ export const makeCategories = (
         case 'tank':
           cats.push('singlets');
           break;
+        case 'co ords':
+          cats.push('co-ords');
+          break;
         default:
           logBadCategory(category);
       }

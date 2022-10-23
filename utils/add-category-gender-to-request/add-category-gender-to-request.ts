@@ -9,13 +9,12 @@ import { CategoryMap } from '../../types/CategoryMap';
  */
 export const addCategoryGenderToRequest = (
   request: RequestOptions,
+  originalUrl: string,
   categoryMap: CategoryMap
 ) => {
   const url = new URL(request.url);
 
-  const key = request.url.split('?')[0];
-
-  console.log('in here', key);
+  const key = originalUrl.split('?')[0];
 
   const category = categoryMap.get(key)?.category;
   const gender = categoryMap.get(key)?.gender;
@@ -31,8 +30,6 @@ export const addCategoryGenderToRequest = (
   request.url = `${request.url}${
     url.searchParams.toString() ? `?${url.searchParams.toString()}` : ''
   }`;
-
-  console.log('request.url', request.url);
 
   return request;
 };

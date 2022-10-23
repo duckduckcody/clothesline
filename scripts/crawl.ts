@@ -18,9 +18,8 @@ const progress = crawlerConfigs.map(async (config) => {
     crawler = new CheerioCrawler({
       ...config.options,
       requestQueue,
-      requestHandler: async ({ request, enqueueLinks, $ }) => {
+      requestHandler: async ({ request, enqueueLinks, $, sendRequest }) => {
         utils.sleep(1000);
-        const test = () => request;
         // url is a list, enqueue all products on page and next page
         if (config.shouldEnqueueLinks(request.url)) {
           const enqueued = await enqueueLinks({
@@ -28,6 +27,16 @@ const progress = crawlerConfigs.map(async (config) => {
             limit: config.maximumProductsOnPage,
             baseUrl: config.baseUrl,
             requestQueue,
+            transformRequestFunction: (enqueuedRequest) => {
+              if (config.transformRequestFunction) {
+                return config.transformRequestFunction(
+                  enqueuedRequest,
+                  request.url
+                );
+              }
+
+              return enqueuedRequest;
+            },
           });
 
           console.log('enqueued products on page', request.url);
@@ -40,7 +49,7 @@ const progress = crawlerConfigs.map(async (config) => {
           }
         } else {
           // its a product details page, scrape it
-          let data = await config.scrape($, request.url);
+          let data = await config.scrape($, request.url, sendRequest);
           if (data) {
             products.push(data);
             console.log('scraped product', data.name);

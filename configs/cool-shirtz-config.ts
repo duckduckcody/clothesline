@@ -40,17 +40,21 @@ categoryMap
   });
 
 export const coolShirtzConfig: CheerioCrawlerConfig = {
+  options: {
+    maxConcurrency: 2,
+  },
+
   type: 'cheerio',
   name: 'Cool Shirtz',
   baseUrl: 'https://shirtz.cool',
-  maximumProductsOnPage: 15,
-  options: {
-    maxConcurrency: 1,
-  },
   categoryUrls: [...categoryMap.keys()],
+
   shouldEnqueueLinks: (url) => !url.includes('products'),
   enqueueSelector: 'a.grid-view-item__link',
+
+  maximumProductsOnPage: 15,
   getNextPageUrl: (url) => incrementPageParam(url, 'page'),
+
   scrape: async ($, url) => {
     const splitUrl = url.split('/');
     const categories = [splitUrl[splitUrl.indexOf('collections') + 1]];

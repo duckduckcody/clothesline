@@ -1,6 +1,11 @@
 import { CheerioAPI } from 'cheerio';
-import { BasicCrawlerOptions, CheerioCrawlerOptions } from 'crawlee';
+import {
+  BasicCrawlerOptions,
+  CheerioCrawlerOptions,
+  RequestOptions,
+} from 'crawlee';
 import { Product } from './Product';
+import { SendRequest } from './SendRequest';
 import { Website } from './Website';
 
 export type CrawlerConfig = BasicCrawlerConfig | CheerioCrawlerConfig;
@@ -25,7 +30,15 @@ export interface CheerioCrawlerConfig {
   shouldEnqueueLinks: (url: string) => boolean;
   enqueueSelector: string;
   categoryUrls: string[];
-  scrape: ($: CheerioAPI, url: string) => Promise<Product | undefined>;
+  scrape: (
+    $: CheerioAPI,
+    url: string,
+    sendRequest: SendRequest
+  ) => Promise<Product | undefined>;
   getNextPageUrl: (url: string) => string;
   options?: Omit<CheerioCrawlerOptions, 'requestHandler'>;
+  transformRequestFunction?: (
+    request: RequestOptions,
+    originalUrl: string
+  ) => RequestOptions;
 }
