@@ -12,7 +12,7 @@ import { EdgeClothingCategoryMap } from './category-map';
 
 export const edgeClothingConfig: CheerioCrawlerConfig = {
   options: {
-    maxConcurrency: 2,
+    maxConcurrency: 4,
   },
 
   type: 'cheerio',

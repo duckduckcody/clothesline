@@ -41,7 +41,7 @@ categoryMap
 
 export const coolShirtzConfig: CheerioCrawlerConfig = {
   options: {
-    maxConcurrency: 2,
+    maxConcurrency: 4,
   },
 
   type: 'cheerio',
