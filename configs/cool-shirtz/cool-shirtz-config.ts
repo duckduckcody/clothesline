@@ -1,12 +1,12 @@
-import { CategoryMap } from '../types/CategoryMap';
-import { CheerioCrawlerConfig } from '../types/CrawlerConfig';
-import { productSchema } from '../types/Product';
-import { Size, sizeSchema } from '../types/Size';
-import { incrementPageParam } from '../utils/increment-page-param/increment-page-param';
-import { logBadProduct } from '../utils/logging';
-import { makeCategories } from '../utils/makeCategories';
-import { protocolAbsolute } from '../utils/protocol-absolute/protocol-absolute';
-import { stringToPrice } from '../utils/stringToPrice';
+import { CategoryMap } from '../../types/CategoryMap';
+import { CheerioCrawlerConfig } from '../../types/CrawlerConfig';
+import { productSchema } from '../../types/Product';
+import { Size, sizeSchema } from '../../types/Size';
+import { incrementPageParam } from '../../utils/increment-page-param/increment-page-param';
+import { logBadProduct } from '../../utils/logging';
+import { makeCategories } from '../../utils/makeCategories';
+import { protocolAbsolute } from '../../utils/protocol-absolute/protocol-absolute';
+import { stringToPrice } from '../../utils/stringToPrice';
 
 const categoryMap: CategoryMap = new Map();
 categoryMap
