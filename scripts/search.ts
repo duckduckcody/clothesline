@@ -1,7 +1,8 @@
 import { productCollectionName } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typesense/typeSenseClient';
+import { makeTypeSenseClient } from '../typesense/typeSenseClient';
 
 export const search = async () => {
+  const typeSenseClient = makeTypeSenseClient();
   const res = await typeSenseClient
     .collections(productCollectionName)
     .documents()

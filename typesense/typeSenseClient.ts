@@ -1,13 +1,46 @@
+import fs from 'fs';
+import ini from 'ini';
 import { Client } from 'typesense';
+import { z } from 'zod';
 
-export const typeSenseClient = new Client({
-  nodes: [
-    {
-      host: 'localhost',
-      port: 8108,
-      protocol: 'http',
-    },
-  ],
-  apiKey: 'xyz',
-  connectionTimeoutSeconds: 2,
+const typeSenseClientConfigSchema = z.object({
+  adminKey: z.string(),
+  host: z.string(),
+  port: z.string(),
+  protocol: z.string(),
 });
+
+export const makeTypeSenseClient = (production: boolean = false) => {
+  if (production) {
+    const configFile = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+    const config = typeSenseClientConfigSchema.safeParse(configFile);
+
+    if (config.success) {
+      return new Client({
+        nodes: [
+          {
+            host: config.data.host,
+            port: parseInt(config.data.port),
+            protocol: config.data.protocol,
+          },
+        ],
+        apiKey: config.data.adminKey,
+        connectionTimeoutSeconds: 2,
+      });
+    } else {
+      throw new Error('bad production typesense config');
+    }
+  } else {
+    return new Client({
+      nodes: [
+        {
+          host: 'localhost',
+          port: 8108,
+          protocol: 'http',
+        },
+      ],
+      apiKey: 'xyz',
+      connectionTimeoutSeconds: 2,
+    });
+  }
+};

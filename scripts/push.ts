@@ -1,7 +1,7 @@
 import { Dataset } from 'crawlee';
 import { DatasetName } from '../types/DatasetName';
 import { productCollectionName } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typesense/typeSenseClient';
+import { makeTypeSenseClient } from '../typesense/typeSenseClient';
 
 export const push = async () => {
   const dataSet = await Dataset.open(DatasetName.products);
@@ -22,6 +22,8 @@ export const push = async () => {
   });
 
   try {
+    const typeSenseClient = makeTypeSenseClient(process.argv[2] === 'prod');
+
     await typeSenseClient
       .collections(productCollectionName)
       .documents()

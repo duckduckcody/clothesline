@@ -2,3 +2,4 @@ node_modules
 apify_storage
 coverage
 storage
+typesense/typesense-client.config.ini

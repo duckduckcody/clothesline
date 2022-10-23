@@ -2,10 +2,11 @@ import {
   productCollectionName,
   TypeSenseProductSchema,
 } from '../types/TypeSenseProductSchema';
-import { typeSenseClient } from '../typesense/typeSenseClient';
+import { makeTypeSenseClient } from '../typesense/typeSenseClient';
 
 const makeCollections = async () => {
   try {
+    const typeSenseClient = makeTypeSenseClient(process.argv[2] === 'prod');
     typeSenseClient.collections(productCollectionName).delete();
 
     const res = await typeSenseClient
